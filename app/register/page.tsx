@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Code2, ArrowRight, Lock, Mail, User, GraduationCap, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useAuth } from "@/lib/auth/auth-context";
 
 export default function RegisterPage() {
@@ -52,39 +52,43 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0B1120] text-slate-900 dark:text-slate-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans transition-colors relative">
+      <div className="absolute top-6 right-6">
+        <ThemeToggle />
+      </div>
+
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <Link href="/" className="inline-flex items-center gap-2 group mb-4">
-          <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-blue-700 to-cyan-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
-            <Code2 className="w-6 h-6" />
+        <Link href="/" className="inline-flex items-center gap-2.5 group mb-4">
+          <div className="w-10 h-10 rounded-lg bg-slate-900 text-blue-400 flex items-center justify-center font-mono font-bold text-sm shadow-sm border border-slate-800 group-hover:bg-blue-900 group-hover:text-white transition-colors">
+            <Code2 className="w-5 h-5" />
           </div>
-          <span className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-slate-950 via-blue-900 to-blue-700 bg-clip-text text-transparent">
+          <span className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
             IT MASTER
           </span>
         </Link>
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
           Đăng ký tài khoản học sinh
-        </h2>
-        <p className="mt-2 text-sm text-slate-600">
+        </h1>
+        <p className="mt-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
           Đã có tài khoản?{" "}
-          <Link href="/login" className="font-semibold text-blue-600 hover:text-blue-500">
+          <Link href="/login" className="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
             Đăng nhập ngay
           </Link>
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
-        <Card className="p-6 sm:p-8 shadow-md border-slate-200">
+        <div className="p-6 sm:p-8 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-swiss">
           {error && (
-            <div className="mb-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs sm:text-sm flex items-start gap-2.5">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-500" />
+            <div className="mb-5 p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-700 dark:text-rose-300 text-xs sm:text-sm flex items-start gap-2.5">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600 dark:text-rose-400" />
               <span>{error}</span>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-mono font-semibold uppercase text-slate-700 dark:text-slate-300 mb-1.5">
                 Họ và tên học sinh
               </label>
               <div className="relative">
@@ -94,14 +98,14 @@ export default function RegisterPage() {
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="Ví dụ: Nguyễn Văn An"
-                  className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                  className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-mono font-semibold uppercase text-slate-700 dark:text-slate-300 mb-1.5">
                 Khối lớp hiện tại
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -110,10 +114,10 @@ export default function RegisterPage() {
                     key={g}
                     type="button"
                     onClick={() => setGradeLevel(g as 10 | 11 | 12)}
-                    className={`py-2 px-3 rounded-xl border text-xs sm:text-sm font-semibold transition ${
+                    className={`py-2 px-3 rounded-lg border text-xs sm:text-sm font-mono font-bold transition tabular-nums ${
                       gradeLevel === g
-                        ? "bg-blue-600 border-blue-600 text-white shadow-sm"
-                        : "bg-slate-50 border-slate-300 text-slate-700 hover:bg-slate-100"
+                        ? "bg-indigo-600 border-indigo-600 text-white shadow-sm"
+                        : "bg-slate-50 dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                     }`}
                   >
                     Lớp {g}
@@ -123,7 +127,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-mono font-semibold uppercase text-slate-700 dark:text-slate-300 mb-1.5">
                 Địa chỉ Email
               </label>
               <div className="relative">
@@ -133,14 +137,14 @@ export default function RegisterPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="hocsinh@thpt.edu.vn"
-                  className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                  className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-mono font-semibold uppercase text-slate-700 dark:text-slate-300 mb-1.5">
                 Mật khẩu
               </label>
               <div className="relative">
@@ -150,13 +154,14 @@ export default function RegisterPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Tối thiểu 6 ký tự"
-                  className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                  className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                  required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-mono font-semibold uppercase text-slate-700 dark:text-slate-300 mb-1.5">
                 Xác nhận mật khẩu
               </label>
               <div className="relative">
@@ -166,21 +171,22 @@ export default function RegisterPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Nhập lại mật khẩu"
-                  className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                  className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                  required
                 />
               </div>
             </div>
 
-            <Button type="submit" className="w-full py-2.5 text-sm mt-4" isLoading={isLoading}>
-              <span>Tạo tài khoản & Nhận +100 XP</span>
+            <Button type="submit" className="w-full py-2.5 text-sm mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold" isLoading={isLoading}>
+              <span>Tạo tài khoản & Nhận ngay +100 XP</span>
               <ArrowRight className="w-4 h-4 ml-1.5" />
             </Button>
           </form>
 
           <p className="mt-4 text-[11px] text-center text-slate-500 leading-normal">
-            Bằng việc đăng ký, bạn đồng ý với tiêu chuẩn học tập và bảo mật tài khoản cá nhân trên hệ thống IT MASTER.
+            Bằng việc đăng ký, bạn đồng ý với Quy chế học tập và Điều khoản sử dụng của IT MASTER.
           </p>
-        </Card>
+        </div>
       </div>
     </div>
   );

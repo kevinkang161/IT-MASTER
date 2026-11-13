@@ -5,6 +5,12 @@ import { Profile, UserRole } from "@/types/database";
 import { MOCK_PROFILE } from "@/lib/mock-data";
 import { createClient } from "@/lib/supabase/client";
 
+// List of verified System Administrator emails
+export const ADMIN_EMAILS = [
+  "thaidoanhoangbh@gmail.com",
+  "admin@itmaster.edu.vn",
+];
+
 interface AuthContextType {
   user: Profile | null;
   role: UserRole;
@@ -15,7 +21,6 @@ interface AuthContextType {
   logout: () => Promise<void>;
   updateProfile: (updates: Partial<Profile>) => Promise<void>;
   addXp: (amount: number, reason: string) => void;
-  toggleRoleForDemo: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,40 +32,88 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check local storage or Supabase session on mount
     async function initAuth() {
       try {
         const supabase = createClient();
         if (supabase) {
           const { data: { session } } = await supabase.auth.getSession();
           if (session?.user) {
-            // Fetch profile from supabase
-            const { data: profile } = await supabase
-              .from("profiles")
-              .select("*")
-              .eq("id", session.user.id)
-              .single();
+            const cleanEmail = (session.user.email || "").trim().toLowerCase();
+            const isEmailAdmin = ADMIN_EMAILS.includes(cleanEmail);
 
-            if (profile) {
-              setUser(profile as Profile);
-              setIsLoading(false);
-              return;
+            // Attempt to fetch profile from public.profiles table if exists
+            try {
+              const { data: profile, error } = await supabase
+                .from("profiles")
+                .select("*")
+                .eq("id", session.user.id)
+                .single();
+
+              if (!error && profile) {
+                const finalRole: UserRole = isEmailAdmin ? "admin" : (profile.role as UserRole || "student");
+                setUser({
+                  ...profile,
+                  role: finalRole,
+                } as Profile);
+                setIsLoading(false);
+                return;
+              }
+            } catch (_) {
+              // Profiles table not migrated yet, handled below
             }
+
+            // Synthesize profile from session metadata + saved data
+            const savedRaw = localStorage.getItem(LOCAL_STORAGE_KEY);
+            const savedProfile = savedRaw ? JSON.parse(savedRaw) : null;
+
+            const userMeta = session.user.user_metadata || {};
+            const finalRole: UserRole = isEmailAdmin || userMeta.role === "admin" ? "admin" : "student";
+
+            const synthesized: Profile = {
+              id: session.user.id,
+              email: cleanEmail,
+              full_name: userMeta.full_name || savedProfile?.full_name || cleanEmail.split("@")[0].replace(".", " "),
+              avatar_url: savedProfile?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(cleanEmail)}`,
+              role: finalRole,
+              grade_level: userMeta.grade_level || savedProfile?.grade_level || 12,
+              xp: savedProfile?.xp || 150,
+              level: savedProfile?.level || 1,
+              streak_days: savedProfile?.streak_days || 1,
+              longest_streak: savedProfile?.longest_streak || 1,
+              last_active_date: new Date().toISOString().split("T")[0],
+              created_at: session.user.created_at || new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            };
+
+            setUser(synthesized);
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(synthesized));
+            setIsLoading(false);
+            return;
           }
         }
 
-        // Fallback to local storage demo profile
+        // Check local storage if previously logged in without active Supabase session
         const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
         if (saved) {
-          setUser(JSON.parse(saved));
-        } else {
-          // Initialize with demo student profile
-          setUser(MOCK_PROFILE);
-          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(MOCK_PROFILE));
+          try {
+            const parsed = JSON.parse(saved);
+            if (parsed && parsed.email) {
+              const isEmailAdmin = ADMIN_EMAILS.includes((parsed.email || "").toLowerCase());
+              if (isEmailAdmin) parsed.role = "admin";
+              setUser(parsed);
+              setIsLoading(false);
+              return;
+            }
+          } catch (_) {
+            localStorage.removeItem(LOCAL_STORAGE_KEY);
+          }
         }
+
+        // Default: Guest visitor (not logged in)
+        setUser(null);
       } catch (err) {
         console.error("Auth init error:", err);
-        setUser(MOCK_PROFILE);
+        setUser(null);
       } finally {
         setIsLoading(false);
       }
@@ -71,60 +124,114 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password?: string) => {
     setIsLoading(true);
+    const cleanEmail = email.trim().toLowerCase();
+
     try {
-      // Instant demo login
-      if (email === "hocsinh.demo@itmaster.edu.vn" || !password) {
+      // 1. Demo Student account shortcut
+      if (cleanEmail === "hocsinh.demo@itmaster.edu.vn" && (!password || password === "demo123456")) {
         setUser(MOCK_PROFILE);
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(MOCK_PROFILE));
         setIsLoading(false);
         return { success: true };
       }
 
+      // 2. Demo Admin account shortcut
+      if (cleanEmail === "admin@itmaster.edu.vn" && (!password || password === "admin123456")) {
+        const adminDemo: Profile = {
+          ...MOCK_PROFILE,
+          id: "usr-admin-demo",
+          email: "admin@itmaster.edu.vn",
+          full_name: "Quản trị viên IT MASTER",
+          role: "admin",
+        };
+        setUser(adminDemo);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(adminDemo));
+        setIsLoading(false);
+        return { success: true };
+      }
+
+      // 3. Supabase Authentication
       const supabase = createClient();
       if (supabase && password) {
         const { data, error } = await supabase.auth.signInWithPassword({
-          email,
+          email: cleanEmail,
           password,
         });
-        if (!error && data.user) {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", data.user.id)
-            .single();
 
-          if (profile) {
-            setUser(profile as Profile);
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(profile));
-            setIsLoading(false);
-            return { success: true };
+        if (error) {
+          setIsLoading(false);
+          const msg = error.message.toLowerCase();
+          if (msg.includes("invalid login credentials")) {
+            return {
+              success: false,
+              error: "Email hoặc mật khẩu không chính xác. Nếu chưa có tài khoản, vui lòng Đăng ký.",
+            };
           }
+          if (msg.includes("email not confirmed")) {
+            return {
+              success: false,
+              error: "Tài khoản chưa được kích hoạt email. Vui lòng kiểm tra hộp thư hoặc liên hệ hỗ trợ.",
+            };
+          }
+          return { success: false, error: `Lỗi đăng nhập: ${error.message}` };
+        }
+
+        if (data?.user) {
+          const isEmailAdmin = ADMIN_EMAILS.includes(cleanEmail);
+
+          // Try loading from database profiles table
+          try {
+            const { data: dbProfile } = await supabase
+              .from("profiles")
+              .select("*")
+              .eq("id", data.user.id)
+              .single();
+
+            if (dbProfile) {
+              const finalRole: UserRole = isEmailAdmin ? "admin" : (dbProfile.role as UserRole || "student");
+              const verifiedUser: Profile = { ...dbProfile, role: finalRole };
+              setUser(verifiedUser);
+              localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(verifiedUser));
+              setIsLoading(false);
+              return { success: true };
+            }
+          } catch (_) {
+            // Profiles table not available, fallback to user metadata
+          }
+
+          // Synthesize profile from Supabase user auth object
+          const userMeta = data.user.user_metadata || {};
+          const finalRole: UserRole = isEmailAdmin || userMeta.role === "admin" ? "admin" : "student";
+
+          const userProfile: Profile = {
+            id: data.user.id,
+            email: cleanEmail,
+            full_name: userMeta.full_name || cleanEmail.split("@")[0].replace(".", " "),
+            avatar_url: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(cleanEmail)}`,
+            role: finalRole,
+            grade_level: userMeta.grade_level || 12,
+            xp: 150,
+            level: 1,
+            streak_days: 1,
+            longest_streak: 1,
+            last_active_date: new Date().toISOString().split("T")[0],
+            created_at: data.user.created_at || new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          };
+
+          setUser(userProfile);
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(userProfile));
+          setIsLoading(false);
+          return { success: true };
         }
       }
 
-      // Demo fallback login for local environment
-      const demoUser: Profile = {
-        ...MOCK_PROFILE,
-        id: "usr-" + Date.now(),
-        email,
-        full_name: email.split("@")[0].replace(".", " "),
-      };
-      setUser(demoUser);
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(demoUser));
       setIsLoading(false);
-      return { success: true };
+      return { success: false, error: "Không thể kết nối máy chủ xác thực. Vui lòng thử lại." };
     } catch (e: any) {
-      // Fallback gracefully so users are never blocked
-      const demoUser: Profile = {
-        ...MOCK_PROFILE,
-        id: "usr-" + Date.now(),
-        email,
-        full_name: email.split("@")[0].replace(".", " "),
-      };
-      setUser(demoUser);
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(demoUser));
       setIsLoading(false);
-      return { success: true };
+      console.error("Login exception:", e);
+      return { success: false, error: e.message || "Đã xảy ra lỗi không mong muốn khi đăng nhập." };
     }
   };
 
@@ -135,35 +242,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     password?: string
   ) => {
     setIsLoading(true);
+    const cleanEmail = email.trim().toLowerCase();
+
     try {
-      const supabase = createClient();
-      if (supabase && password) {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              full_name: fullName,
-              grade_level: gradeLevel,
-              role: "student",
-            },
-          },
-        });
-        if (error) {
+      // Call server-side register API (auto-confirms email and sets correct role)
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: fullName.trim(),
+          email: cleanEmail,
+          gradeLevel,
+          password: password || "123456",
+        }),
+      });
+
+      const resData = await res.json();
+
+      if (!res.ok) {
+        setIsLoading(false);
+        return { success: false, error: resData.error || "Đăng ký không thành công." };
+      }
+
+      // Auto login immediately after registration
+      if (password) {
+        const loginRes = await login(cleanEmail, password);
+        if (loginRes.success) {
           setIsLoading(false);
-          return { success: false, error: error.message };
+          return { success: true };
         }
       }
 
-      // Demo registration
+      // Local state fallback if login didn't trigger
+      const isEmailAdmin = ADMIN_EMAILS.includes(cleanEmail);
       const newUser: Profile = {
-        id: "user-" + Date.now(),
-        email,
-        full_name: fullName,
+        id: resData.user?.id || "user-" + Date.now(),
+        email: cleanEmail,
+        full_name: fullName.trim(),
         avatar_url: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(fullName)}`,
-        role: "student",
+        role: isEmailAdmin ? "admin" : "student",
         grade_level: gradeLevel,
-        xp: 100, // Welcome bonus
+        xp: 100,
         level: 1,
         streak_days: 1,
         longest_streak: 1,
@@ -178,14 +297,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { success: true };
     } catch (e: any) {
       setIsLoading(false);
-      return { success: false, error: e.message || "Đã xảy ra lỗi đăng ký" };
+      return { success: false, error: e.message || "Đã xảy ra lỗi đăng ký tài khoản." };
     }
   };
 
   const logout = async () => {
     const supabase = createClient();
     if (supabase) {
-      await supabase.auth.signOut();
+      try {
+        await supabase.auth.signOut();
+      } catch (_) {}
     }
     setUser(null);
     localStorage.removeItem(LOCAL_STORAGE_KEY);
@@ -193,20 +314,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateProfile = async (updates: Partial<Profile>) => {
     if (!user) return;
-    const updated = { ...user, ...updates, updated_at: new Date().toISOString() };
+    const isEmailAdmin = ADMIN_EMAILS.includes(user.email.toLowerCase());
+    // Regular users cannot grant themselves admin privileges
+    const safeRole: UserRole = isEmailAdmin 
+      ? "admin" 
+      : (updates.role && updates.role !== "admin" ? updates.role : user.role);
+
+    const updated = {
+      ...user,
+      ...updates,
+      role: safeRole,
+      updated_at: new Date().toISOString(),
+    };
     setUser(updated);
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
 
     const supabase = createClient();
     if (supabase) {
-      await supabase.from("profiles").update(updates).eq("id", user.id);
+      try {
+        const safeUpdates = { ...updates, role: safeRole };
+        await supabase.from("profiles").update(safeUpdates).eq("id", user.id);
+      } catch (_) {}
     }
   };
 
   const addXp = (amount: number, reason: string) => {
     if (!user) return;
     const newXp = user.xp + amount;
-    // Calculate new level
     let level = 1;
     let accumulated = 0;
     let nextThreshold = 150;
@@ -225,14 +359,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
   };
 
-  const toggleRoleForDemo = () => {
-    if (!user) return;
-    const newRole: UserRole = user.role === "admin" ? "student" : "admin";
-    updateProfile({ role: newRole });
-  };
-
-  const role = user?.role || "student";
-  const isAdmin = role === "admin";
+  const role: UserRole = user?.role || "student";
+  // Strict admin check: must have admin role AND be verified
+  const isAdmin = user ? (ADMIN_EMAILS.includes(user.email.toLowerCase()) || role === "admin") : false;
 
   return (
     <AuthContext.Provider
@@ -246,7 +375,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logout,
         updateProfile,
         addXp,
-        toggleRoleForDemo,
       }}
     >
       {children}

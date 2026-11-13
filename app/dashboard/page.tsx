@@ -34,7 +34,7 @@ import { calculateLevel } from "@/lib/utils";
 import { MOCK_LESSONS, MOCK_EXAMS, MOCK_ACHIEVEMENTS } from "@/lib/mock-data";
 
 export default function StudentDashboardPage() {
-  const { user, isAdmin, toggleRoleForDemo } = useAuth();
+  const { user, isAdmin } = useAuth();
 
   const xpStats = calculateLevel(user?.xp || 1250);
   const lessonsCompleted = 14;
@@ -45,13 +45,13 @@ export default function StudentDashboardPage() {
   const currentLesson = MOCK_LESSONS[0];
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col bg-[#F8FAFC] dark:bg-[#0B1120] text-slate-900 dark:text-slate-100 font-sans transition-colors">
       <Navbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8">
         {/* TOP WELCOME BANNER */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white p-6 sm:p-8 shadow-lg">
-          <div className="absolute right-0 top-0 translate-x-10 -translate-y-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative overflow-hidden rounded-3xl bg-slate-900 border border-slate-800 text-white p-6 sm:p-8 shadow-swiss">
+          <div className="absolute right-0 top-0 translate-x-10 -translate-y-10 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
 
           <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="flex items-center gap-4 sm:gap-6">
@@ -67,12 +67,17 @@ export default function StudentDashboardPage() {
               </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white">
-                    Chào mừng trở lại, {user?.full_name || "Nguyễn Văn An"}!
+                  <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
+                    Chào mừng trở lại, {user?.full_name || "Học sinh"}!
                   </h1>
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/20 text-cyan-300 border border-blue-400/30">
+                  <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
                     Lớp {user?.grade_level || 12}
                   </span>
+                  {isAdmin && (
+                    <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                      Quản trị viên
+                    </span>
+                  )}
                 </div>
                 <p className="text-sm text-slate-300">
                   Hôm nay là một ngày tuyệt vời để bứt phá môn Tin học! Bạn đã duy trì chuỗi học tập liên tục.
@@ -80,18 +85,16 @@ export default function StudentDashboardPage() {
               </div>
             </div>
 
-            {/* Quick Demo Role Switcher */}
-            <div className="flex flex-wrap items-center gap-2 self-stretch md:self-auto justify-end">
-              <button
-                onClick={toggleRoleForDemo}
-                className="text-xs px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-slate-200 border border-white/15 transition flex items-center gap-1.5"
-                title="Chuyển đổi vai trò để thử nghiệm giao diện Học sinh hoặc Quản trị Admin"
-              >
-                <ShieldCheck className="w-3.5 h-3.5 text-cyan-300" />
-                <span>Vai trò hiện tại: <strong>{user?.role === "admin" ? "Admin CMS" : "Học sinh"}</strong></span>
-                <span className="text-[10px] text-cyan-300 underline ml-1">Đổi vai trò</span>
-              </button>
-            </div>
+            {isAdmin && (
+              <div className="flex items-center gap-2">
+                <Link href="/admin">
+                  <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold">
+                    <ShieldCheck className="w-4 h-4 mr-1.5" />
+                    <span>Mở trang Quản trị CMS</span>
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* XP & Level progress bar inside hero */}

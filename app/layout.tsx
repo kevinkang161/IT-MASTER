@@ -52,6 +52,23 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
+                try {
+                  var theme = localStorage.getItem('itmaster-theme');
+                  var isDark = theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                  if (isDark) {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                } catch(e) {}
+              })();
+            `,
+          }}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
                 const attrs = ['bis_skin_checked', 'data-bis-skin-checked'];
                 function stripAttrs(node) {
                   if (node && node.nodeType === 1) {

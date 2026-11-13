@@ -79,7 +79,7 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#fcfcfd] text-slate-900 selection:bg-blue-100 selection:text-blue-900">
+    <div className="min-h-screen flex flex-col bg-[#F8FAFC] dark:bg-[#0B1120] text-slate-900 dark:text-slate-100 selection:bg-indigo-100 dark:selection:bg-indigo-950 font-sans transition-colors">
       <Navbar />
 
       <main className="flex-1">
@@ -102,7 +102,7 @@ export default function HomePage() {
 
               <div className="mt-8 flex flex-wrap items-center gap-4">
                 <Link href="/learning">
-                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 shadow-sm">
+                  <Button size="lg" className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 shadow-sm">
                     Khám phá bài học
                   </Button>
                 </Link>
@@ -124,19 +124,19 @@ export default function HomePage() {
             {/* QUICK BENCHMARK STRIP */}
             <div className="mt-16 pt-8 border-t border-slate-800/80 grid grid-cols-2 md:grid-cols-4 gap-6 text-left">
               <div>
-                <div className="text-2xl sm:text-3xl font-bold text-white font-mono">3 Khối lớp</div>
+                <div className="text-2xl sm:text-3xl font-bold text-white font-mono tabular-nums">3 Khối lớp</div>
                 <div className="text-xs text-slate-400 mt-1">Lớp 10, 11 & 12 KNTT</div>
               </div>
               <div>
-                <div className="text-2xl sm:text-3xl font-bold text-blue-400 font-mono">95 Bài học</div>
+                <div className="text-2xl sm:text-3xl font-bold text-blue-400 font-mono tabular-nums">95 Bài học</div>
                 <div className="text-xs text-slate-400 mt-1">Tóm tắt chi tiết 3 năm</div>
               </div>
               <div>
-                <div className="text-2xl sm:text-3xl font-bold text-emerald-400 font-mono">4 Định dạng</div>
+                <div className="text-2xl sm:text-3xl font-bold text-emerald-400 font-mono tabular-nums">4 Định dạng</div>
                 <div className="text-xs text-slate-400 mt-1">Trắc nghiệm thi THPT 2025+</div>
               </div>
               <div>
-                <div className="text-2xl sm:text-3xl font-bold text-cyan-400 font-mono">100% Giải thích</div>
+                <div className="text-2xl sm:text-3xl font-bold text-cyan-400 font-mono tabular-nums">100% Giải thích</div>
                 <div className="text-xs text-slate-400 mt-1">Phân tích rõ từng phương án</div>
               </div>
             </div>
@@ -146,11 +146,11 @@ export default function HomePage() {
         {/* THREE CORE PILLARS (GRADE GRID) */}
         <section className="py-16 sm:py-24 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-12">
-            <span className="text-xs font-bold text-blue-700 tracking-wider">Lộ trình học theo khối lớp</span>
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-1">
+            <span className="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Lộ trình học theo khối lớp</span>
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight mt-1">
               Chương trình Tin học chuẩn quốc gia 2026–2027
             </h2>
-            <p className="text-slate-600 text-sm sm:text-base mt-2 max-w-2xl">
+            <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base mt-2 max-w-2xl">
               Được tổ chức tuần tự theo từng năm học, hỗ trợ cả hai định hướng Khoa học máy tính (CS) và Tin học ứng dụng (ICT).
             </p>
           </div>
@@ -159,37 +159,37 @@ export default function HomePage() {
             {pillars.map((item) => (
               <div
                 key={item.grade}
-                className="bg-white border border-slate-200 rounded-xl p-6 sm:p-7 flex flex-col justify-between hover:border-blue-400 hover:shadow-md transition"
+                className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-xl p-6 sm:p-7 flex flex-col justify-between hover:border-indigo-400 dark:hover:border-indigo-600 shadow-swiss transition"
               >
                 <div>
-                  <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
-                    <span className="text-xs font-bold text-slate-900 bg-slate-100 px-2.5 py-1 rounded">
+                  <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-slate-800">
+                    <span className="text-xs font-mono font-bold text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded">
                       Khối {item.grade}
                     </span>
-                    <span className="text-xs text-slate-500 font-medium">{item.curriculum}</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">{item.curriculum}</span>
                   </div>
 
-                  <h3 className="text-lg font-bold text-slate-900">{item.title}</h3>
-                  <div className="text-xs font-semibold text-blue-700 mt-0.5">{item.focus}</div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">{item.title}</h3>
+                  <div className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 mt-0.5">{item.focus}</div>
 
-                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mt-3">
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed mt-3">
                     {item.summary}
                   </p>
 
-                  <div className="mt-5 pt-4 border-t border-slate-100 space-y-2">
-                    <div className="text-[11px] font-bold text-slate-500">Chủ đề then chốt:</div>
+                  <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
+                    <div className="text-[11px] font-mono font-bold text-slate-500">Chủ đề then chốt:</div>
                     {item.topics.map((t, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-xs text-slate-700">
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0" />
+                      <div key={idx} className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
+                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400 shrink-0" />
                         <span>{t}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-slate-100">
+                <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
                   <Link href={item.href} className="block">
-                    <Button variant="outline" className="w-full justify-between text-xs font-semibold">
+                    <Button variant="outline" className="w-full justify-between text-xs font-semibold border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">
                       <span>Vào học {item.title}</span>
                       <ChevronRight className="w-4 h-4 text-slate-400" />
                     </Button>
@@ -201,21 +201,21 @@ export default function HomePage() {
         </section>
 
         {/* SYSTEM HIGHLIGHTS: Clean editorial list */}
-        <section className="py-16 bg-white border-y border-slate-200">
+        <section className="py-16 bg-white dark:bg-[#0e1626] border-y border-slate-200 dark:border-slate-800">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-2xl mb-12">
-              <span className="text-xs font-bold text-blue-700 tracking-wider">Đặc điểm nền tảng</span>
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-1">
+              <span className="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Đặc điểm nền tảng</span>
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight mt-1">
                 Thiết kế chuyên biệt cho việc học và thi Tin học
               </h2>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {highlights.map((h, idx) => (
-                <div key={idx} className="p-5 rounded-lg border border-slate-200 bg-slate-50/50 flex flex-col justify-between">
+                <div key={idx} className="p-5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/60 flex flex-col justify-between">
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900 mb-2">{h.label}</h3>
-                    <p className="text-xs text-slate-600 leading-relaxed">{h.desc}</p>
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-2">{h.label}</h3>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">{h.desc}</p>
                   </div>
                 </div>
               ))}
@@ -225,19 +225,19 @@ export default function HomePage() {
 
         {/* CALL TO ACTION: MOCK EXAMS */}
         <section className="py-16 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-slate-900 rounded-2xl p-8 sm:p-12 text-white flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 sm:p-12 text-white flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 shadow-swiss">
             <div className="max-w-2xl space-y-3">
-              <span className="text-xs font-semibold text-blue-400">Phòng thi thử trực tuyến</span>
+              <span className="text-xs font-mono font-semibold text-indigo-400">Phòng thi thử trực tuyến</span>
               <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
                 Thử sức với đề thi chuẩn ma trận Tốt nghiệp THPT
               </h2>
               <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
-                Đề thi 40 câu hỏi, thời gian làm bài 45 phút, lưu bài tự động theo thời gian thực và chấm điểm chi tiết ngay khi nộp bài.
+                Đề thi chuẩn hóa, thời gian làm bài 45 phút, lưu bài tự động theo thời gian thực và chấm điểm chi tiết ngay khi nộp bài.
               </p>
             </div>
             <div className="shrink-0 flex items-center gap-3">
               <Link href="/exams">
-                <Button size="lg" className="bg-white text-slate-900 hover:bg-slate-100 font-bold px-6">
+                <Button size="lg" className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6">
                   Vào thi ngay
                 </Button>
               </Link>
@@ -251,11 +251,11 @@ export default function HomePage() {
         </section>
 
         {/* CONTACT SECTION: Academic advisor card */}
-        <section id="contact" className="py-16 sm:py-24 bg-slate-50 border-t border-slate-200">
+        <section id="contact" className="py-16 sm:py-24 bg-slate-50 dark:bg-[#0B1120] border-t border-slate-200 dark:border-slate-800">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-10">
-              <span className="text-xs font-bold text-blue-700 tracking-wider">Thông tin kết nối</span>
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-1">
+              <span className="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Thông tin kết nối</span>
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight mt-1">
                 Liên hệ & Cố vấn chuyên môn
               </h2>
               <p className="text-slate-600 text-xs sm:text-sm mt-2 max-w-xl mx-auto">
@@ -263,28 +263,28 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+            <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-swiss">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
                 {/* Advisor Info */}
-                <div className="space-y-1 md:col-span-1 border-b md:border-b-0 md:border-r border-slate-100 pb-4 md:pb-0 md:pr-4">
-                  <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center font-bold mb-3">
+                <div className="space-y-1 md:col-span-1 border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-800 pb-4 md:pb-0 md:pr-4">
+                  <div className="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 flex items-center justify-center font-bold mb-3 border border-indigo-200 dark:border-indigo-800">
                     <User className="w-5 h-5" />
                   </div>
-                  <div className="text-xs text-slate-500 font-medium">Người phụ trách chuyên môn</div>
-                  <div className="text-lg font-bold text-slate-900">Thái Doãn An Khang</div>
-                  <div className="text-xs text-slate-500">Quản trị viên hệ thống IT MASTER</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">Người phụ trách chuyên môn</div>
+                  <div className="text-lg font-bold text-slate-900 dark:text-white">Thái Doãn An Khang</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400">Quản trị viên hệ thống IT MASTER</div>
                 </div>
 
                 {/* Hotline call */}
-                <div className="space-y-1 md:col-span-1 border-b md:border-b-0 md:border-r border-slate-100 pb-4 md:pb-0 md:pr-4">
-                  <div className="text-xs text-slate-500 font-medium">Hotline tư vấn & hỗ trợ:</div>
+                <div className="space-y-1 md:col-span-1 border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-800 pb-4 md:pb-0 md:pr-4">
+                  <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">Hotline tư vấn & hỗ trợ:</div>
                   <a
                     href="tel:0829109222"
-                    className="text-xl font-bold text-blue-700 hover:text-blue-800 transition block font-mono"
+                    className="text-xl font-bold text-indigo-600 dark:text-indigo-400 hover:underline transition block font-mono tabular-nums"
                   >
                     0829 109 222
                   </a>
-                  <p className="text-xs text-slate-500">Hỗ trợ học sinh và giáo viên trong giờ hành chính.</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Hỗ trợ học sinh và giáo viên trong giờ hành chính.</p>
                 </div>
 
                 {/* Zalo Action */}
@@ -293,7 +293,7 @@ export default function HomePage() {
                     href="https://zalo.me/0829109222"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition"
+                    className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition shadow-sm"
                   >
                     <MessageSquare className="w-4 h-4" />
                     <span>Nhắn tin qua Zalo</span>

@@ -75,7 +75,7 @@ function LearningContent() {
   }, [selectedGrade, searchQuery]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col bg-[#F8FAFC] dark:bg-[#0B1120] text-slate-900 dark:text-slate-100 transition-colors">
       <Navbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8">
@@ -83,13 +83,13 @@ function LearningContent() {
         <div className="space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <Badge variant="primary">Chương trình chuẩn Bộ GD&ĐT 2026–2027</Badge>
-            <div className="flex items-center gap-1.5 p-1 bg-white border border-slate-200 rounded-xl shadow-sm text-xs font-semibold">
+            <div className="flex items-center gap-1.5 p-1 bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm text-xs font-semibold">
               <button
                 onClick={() => setViewMode("lessons")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition ${
                   viewMode === "lessons"
                     ? "bg-blue-600 text-white shadow-sm"
-                    : "text-slate-600 hover:text-slate-900"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
                 <BookOpen className="w-3.5 h-3.5" />
@@ -100,7 +100,7 @@ function LearningContent() {
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition ${
                   viewMode === "summaries"
                     ? "bg-blue-600 text-white shadow-sm"
-                    : "text-slate-600 hover:text-slate-900"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
                 <Sparkles className="w-3.5 h-3.5 text-amber-300" />
@@ -109,10 +109,10 @@ function LearningContent() {
             </div>
           </div>
 
-          <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             {viewMode === "lessons" ? "Thư Viện Bài Học Tin Học THPT" : "Sổ Tay Tóm Tắt Trọng Tâm SGK Kết Nối Tri Thức"}
           </h1>
-          <p className="text-slate-600 text-sm sm:text-base max-w-3xl leading-relaxed">
+          <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base max-w-3xl leading-relaxed">
             {viewMode === "lessons"
               ? "Hệ thống 16 bài học chuẩn mực được biên soạn từ sách giáo khoa Kết nối tri thức Lớp 10, 11 và 12. Tích lũy kiến thức lý thuyết, mã nguồn mẫu và làm bài trắc nghiệm kiểm tra nhận điểm XP."
               : "Toàn bộ kiến thức cô đọng của 34 bài Lớp 10, 31 bài Lớp 11 (Phần chung, CS, ICT) và 30 bài Lớp 12 theo khung ma trận thi tốt nghiệp THPT Quốc gia 2025+."}
@@ -120,7 +120,7 @@ function LearningContent() {
         </div>
 
         {/* CONTROLS: GRADE TABS & SEARCH */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
           {/* Grade selection tabs */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
             <button
@@ -128,7 +128,7 @@ function LearningContent() {
               className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition whitespace-nowrap ${
                 selectedGrade === "all"
                   ? "bg-blue-600 text-white shadow-sm"
-                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                  : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
               }`}
             >
               Tất cả các khối
@@ -140,7 +140,7 @@ function LearningContent() {
                 className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition whitespace-nowrap ${
                   selectedGrade === grade.id
                     ? "bg-blue-600 text-white shadow-sm"
-                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                    : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
                 }`}
               >
                 {grade.name}
@@ -156,7 +156,7 @@ function LearningContent() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Tìm kiếm chủ đề, bài học..."
-              className="w-full pl-10 pr-3.5 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              className="w-full pl-10 pr-3.5 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
             />
           </div>
         </div>
@@ -168,11 +168,11 @@ function LearningContent() {
               {filteredLessons.map((lesson) => (
                 <Card
                   key={lesson.id}
-                  className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between bg-white"
+                  className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between bg-white dark:bg-[#0f172a] border-slate-200 dark:border-slate-800"
                 >
                   <CardHeader>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-bold px-2.5 py-0.5 rounded-lg bg-blue-100 text-blue-700">
+                      <span className="text-xs font-bold px-2.5 py-0.5 rounded-lg bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                         Lớp {lesson.grade_id}
                       </span>
                       <Badge
@@ -192,21 +192,21 @@ function LearningContent() {
                           : "Nâng cao"}
                       </Badge>
                     </div>
-                    <CardTitle className="text-base sm:text-lg text-slate-900 line-clamp-2">
+                    <CardTitle className="text-base sm:text-lg text-slate-900 dark:text-white line-clamp-2">
                       {lesson.title}
                     </CardTitle>
-                    <CardDescription className="text-xs sm:text-sm text-slate-600 line-clamp-3 leading-relaxed mt-2">
+                    <CardDescription className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 line-clamp-3 leading-relaxed mt-2">
                       {lesson.introduction}
                     </CardDescription>
                   </CardHeader>
 
                   <CardContent className="space-y-3 pt-0">
-                    <div className="flex items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-100">
+                    <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-100 dark:border-slate-800">
                       <div className="flex items-center gap-1.5">
                         <Clock className="w-3.5 h-3.5 text-slate-400" />
                         <span>~{lesson.estimated_minutes} phút</span>
                       </div>
-                      <div className="flex items-center gap-1 font-bold text-emerald-600">
+                      <div className="flex items-center gap-1 font-bold text-emerald-600 dark:text-emerald-400">
                         <Zap className="w-3.5 h-3.5 fill-emerald-500" />
                         <span>+{lesson.xp_reward} XP</span>
                       </div>
@@ -215,7 +215,7 @@ function LearningContent() {
 
                   <CardFooter className="pt-2">
                     <Link href={`/learning/${lesson.slug}`} className="w-full">
-                      <Button variant="outline" className="w-full justify-between group">
+                      <Button variant="outline" className="w-full justify-between group dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">
                         <span>Bắt đầu đọc bài</span>
                         <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                       </Button>
@@ -225,12 +225,12 @@ function LearningContent() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 p-8 space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 mx-auto flex items-center justify-center">
+            <div className="text-center py-16 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 p-8 space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 mx-auto flex items-center justify-center">
                 <BookOpen className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-bold text-slate-900">Không tìm thấy bài học phù hợp</h3>
-              <p className="text-sm text-slate-500 max-w-sm mx-auto">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Không tìm thấy bài học phù hợp</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
                 Không có bài học nào khớp với từ khóa &ldquo;{searchQuery}&rdquo; trong khối lớp đã chọn.
               </p>
               <Button
@@ -251,34 +251,34 @@ function LearningContent() {
             {filteredSummaries.length > 0 ? (
               filteredSummaries.map((summary) => (
                 <div key={summary.gradeId} className="space-y-6">
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
                     <div>
-                      <h2 className="text-xl sm:text-2xl font-black text-slate-900">
+                      <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
                         {summary.gradeName} — {summary.bookSeries}
                       </h2>
-                      <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                      <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
                         Hệ thống {summary.totalLessons} bài học chuẩn ma trận kiến thức GDPT mới
                       </p>
                     </div>
-                    <span className="text-xs font-bold px-3 py-1 rounded-full bg-blue-100 text-blue-800">
+                    <span className="text-xs font-bold px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                       Khối {summary.gradeId}
                     </span>
                   </div>
 
                   <div className="space-y-6">
                     {summary.themes.map((theme) => (
-                      <Card key={theme.id} className="p-6 sm:p-8 bg-white border-slate-200 shadow-sm space-y-6">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                      <Card key={theme.id} className="p-6 sm:p-8 bg-white dark:bg-[#0f172a] border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
                           <div>
-                            <span className="text-xs font-bold text-blue-600 uppercase tracking-wider">
+                            <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
                               {theme.lessonsRange}
                             </span>
-                            <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 mt-0.5">
+                            <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white mt-0.5">
                               {theme.themeTitle}
                             </h3>
                           </div>
                           <Link href={`/practice`}>
-                            <Button variant="outline" size="sm" className="gap-1.5 text-xs font-bold text-blue-600">
+                            <Button variant="outline" size="sm" className="gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 dark:border-slate-700">
                               <span>Luyện câu hỏi chủ đề này</span>
                               <ArrowRight className="w-3.5 h-3.5" />
                             </Button>
@@ -286,15 +286,15 @@ function LearningContent() {
                         </div>
 
                         {/* Content text */}
-                        <div className="prose prose-slate max-w-none text-slate-700 text-sm sm:text-base leading-relaxed whitespace-pre-line space-y-3">
+                        <div className="prose prose-slate dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed whitespace-pre-line space-y-3">
                           {theme.content}
                         </div>
 
                         {/* Comparison Table if exists */}
                         {theme.table && (
-                          <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200">
+                          <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
                             <table className="w-full text-left text-xs sm:text-sm">
-                              <thead className="bg-slate-100 text-slate-900 font-bold border-b border-slate-200">
+                              <thead className="bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-bold border-b border-slate-200 dark:border-slate-700">
                                 <tr>
                                   {theme.table.headers.map((h, idx) => (
                                     <th key={idx} className="p-3">
@@ -303,11 +303,11 @@ function LearningContent() {
                                   ))}
                                 </tr>
                               </thead>
-                              <tbody className="divide-y divide-slate-200 bg-white">
+                              <tbody className="divide-y divide-slate-200 dark:divide-slate-800 bg-white dark:bg-[#0f172a]">
                                 {theme.table.rows.map((row, rIdx) => (
-                                  <tr key={rIdx} className="hover:bg-slate-50">
+                                  <tr key={rIdx} className="hover:bg-slate-50 dark:hover:bg-slate-900/50">
                                     {row.map((cell, cIdx) => (
-                                      <td key={cIdx} className="p-3 text-slate-700 font-medium">
+                                      <td key={cIdx} className="p-3 text-slate-700 dark:text-slate-300 font-medium">
                                         {cell}
                                       </td>
                                     ))}
@@ -334,9 +334,9 @@ function LearningContent() {
                 </div>
               ))
             ) : (
-              <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 p-8 space-y-4">
-                <h3 className="text-lg font-bold text-slate-900">Không tìm thấy chủ đề tóm tắt phù hợp</h3>
-                <p className="text-sm text-slate-500 max-w-sm mx-auto">
+              <div className="text-center py-16 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 p-8 space-y-4">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Không tìm thấy chủ đề tóm tắt phù hợp</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
                   Vui lòng điều chỉnh lại bộ lọc khối lớp hoặc từ khóa tìm kiếm.
                 </p>
                 <Button

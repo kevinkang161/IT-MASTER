@@ -39,7 +39,7 @@ export function Navbar() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-200/80 bg-white/95 backdrop-blur-md">
+    <header className="sticky top-0 z-50 w-full border-b border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-[#0B1120]/95 backdrop-blur-md transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -48,10 +48,10 @@ export function Navbar() {
               <Code2 className="w-4 h-4" />
             </div>
             <div className="flex flex-col leading-tight">
-              <span className="text-base font-bold tracking-tight text-slate-900">
+              <span className="text-base font-bold tracking-tight text-slate-900 dark:text-white">
                 IT MASTER
               </span>
-              <span className="text-[10px] font-mono text-slate-500 tracking-normal">
+              <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 tracking-normal">
                 KNTT 10 · 11 · 12
               </span>
             </div>
@@ -69,11 +69,11 @@ export function Navbar() {
                   className={cn(
                     "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
                     isActive
-                      ? "bg-slate-100 text-slate-900 font-semibold"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                      ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-semibold"
+                      : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/60"
                   )}
                 >
-                  <Icon className={cn("w-3.5 h-3.5", isActive ? "text-blue-700" : "text-slate-400")} />
+                  <Icon className={cn("w-3.5 h-3.5", isActive ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400")} />
                   {link.label}
                 </Link>
               );
@@ -86,20 +86,20 @@ export function Navbar() {
             {user ? (
               <>
                 {/* Streak & XP Badges */}
-                <div className="flex items-center gap-2 bg-slate-50 border border-slate-200/80 px-2.5 py-1 rounded-xl text-xs font-semibold">
-                  <div className="flex items-center gap-1 text-amber-600" title="Chuỗi học tập liên tục">
+                <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 px-2.5 py-1 rounded-xl text-xs font-semibold">
+                  <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400" title="Chuỗi học tập liên tục">
                     <Flame className="w-4 h-4 fill-amber-500 text-amber-500" />
-                    <span>{user.streak_days} ngày</span>
+                    <span className="font-mono tabular-nums">{user.streak_days} ngày</span>
                   </div>
-                  <div className="w-px h-3.5 bg-slate-200" />
-                  <div className="flex items-center gap-1 text-blue-600" title="Tổng điểm kinh nghiệm XP">
-                    <Zap className="w-4 h-4 fill-blue-500 text-blue-500" />
-                    <span>{user.xp.toLocaleString()} XP</span>
+                  <div className="w-px h-3.5 bg-slate-200 dark:bg-slate-700" />
+                  <div className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400" title="Tổng điểm kinh nghiệm XP">
+                    <Zap className="w-4 h-4 fill-current" />
+                    <span className="font-mono tabular-nums">{user.xp.toLocaleString()} XP</span>
                   </div>
                 </div>
 
                 <Link href="/dashboard">
-                  <Button variant="outline" size="sm" className="gap-2">
+                  <Button variant="outline" size="sm" className="gap-2 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">
                     <User className="w-4 h-4 text-slate-500" />
                     <span>{user.full_name || "Bảng học tập"}</span>
                   </Button>
@@ -107,8 +107,8 @@ export function Navbar() {
 
                 {isAdmin && (
                   <Link href="/admin">
-                    <Button variant="secondary" size="sm" className="gap-1.5 bg-slate-800 text-xs">
-                      <ShieldCheck className="w-4 h-4 text-cyan-400" />
+                    <Button variant="secondary" size="sm" className="gap-1.5 bg-slate-900 dark:bg-slate-800 border border-slate-700 text-xs text-cyan-300">
+                      <ShieldCheck className="w-4 h-4" />
                       <span>Admin CMS</span>
                     </Button>
                   </Link>
@@ -117,13 +117,13 @@ export function Navbar() {
             ) : (
               <div className="flex items-center gap-2">
                 <Link href="/login">
-                  <Button variant="outline" size="sm" className="gap-1.5">
+                  <Button variant="outline" size="sm" className="gap-1.5 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">
                     <LogIn className="w-4 h-4" />
                     <span>Đăng nhập</span>
                   </Button>
                 </Link>
                 <Link href="/register">
-                  <Button size="sm">Bắt đầu học ngay</Button>
+                  <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold">Bắt đầu học ngay</Button>
                 </Link>
               </div>
             )}
@@ -134,7 +134,7 @@ export function Navbar() {
             <ThemeToggle />
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+              className="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
               aria-label="Mở menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -145,15 +145,15 @@ export function Navbar() {
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-slate-200 bg-white px-4 pt-2 pb-6 space-y-3">
+        <div className="md:hidden border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0B1120] px-4 pt-2 pb-6 space-y-3">
           {user && (
-            <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl mb-3">
-              <div className="flex items-center gap-1 text-amber-600 text-xs font-bold">
+            <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl mb-3">
+              <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400 text-xs font-bold font-mono">
                 <Flame className="w-4 h-4 fill-amber-500 text-amber-500" />
                 <span>Chuỗi {user.streak_days} ngày</span>
               </div>
-              <div className="flex items-center gap-1 text-blue-600 text-xs font-bold">
-                <Zap className="w-4 h-4 fill-blue-500 text-blue-500" />
+              <div className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400 text-xs font-bold font-mono">
+                <Zap className="w-4 h-4 fill-current" />
                 <span>{user.xp.toLocaleString()} XP (Cấp {user.level})</span>
               </div>
             </div>
@@ -171,31 +171,31 @@ export function Navbar() {
                   className={cn(
                     "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium",
                     isActive
-                      ? "bg-blue-50 text-blue-700 font-semibold"
-                      : "text-slate-700 hover:bg-slate-100"
+                      ? "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 font-semibold"
+                      : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
                   )}
                 >
-                  <Icon className="w-5 h-5 text-blue-600" />
+                  <Icon className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                   {link.label}
                 </Link>
               );
             })}
           </div>
 
-          <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
+          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-2">
             {user ? (
               <>
                 <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                  <Button className="w-full">Vào bảng học tập của tôi</Button>
+                  <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold">Vào bảng học tập của tôi</Button>
                 </Link>
                 {isAdmin && (
                   <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="outline" className="w-full">Trang Quản trị Admin (CMS)</Button>
+                    <Button variant="outline" className="w-full border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200">Trang Quản trị Admin (CMS)</Button>
                   </Link>
                 )}
                 <Button
                   variant="ghost"
-                  className="w-full text-rose-600 hover:text-rose-700 hover:bg-rose-50"
+                  className="w-full text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40"
                   onClick={() => {
                     logout();
                     setMobileMenuOpen(false);
@@ -208,10 +208,10 @@ export function Navbar() {
             ) : (
               <>
                 <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="outline" className="w-full">Đăng nhập</Button>
+                  <Button variant="outline" className="w-full border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200">Đăng nhập</Button>
                 </Link>
                 <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
-                  <Button className="w-full">Tạo tài khoản học sinh</Button>
+                  <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold">Tạo tài khoản học sinh</Button>
                 </Link>
               </>
             )}
