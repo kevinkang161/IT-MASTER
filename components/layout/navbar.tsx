@@ -22,6 +22,7 @@ import {
   LayoutDashboard,
   UserCircle,
   UserPlus,
+  Film,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -58,6 +59,7 @@ export function Navbar() {
 
   const navLinks = [
     { href: "/learning", label: "Thư viện bài học", icon: BookOpen },
+    { href: "/videos", label: "Video bài giảng", icon: Film },
     { href: "/practice", label: "Luyện tập theo chủ đề", icon: CheckCircle2 },
     { href: "/exams", label: "Phòng thi thử THPT", icon: GraduationCap },
     { href: "/leaderboard", label: "Bảng vàng danh dự", icon: Trophy },
