@@ -21,6 +21,7 @@ import {
   ChevronDown,
   LayoutDashboard,
   UserCircle,
+  UserPlus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -193,11 +194,39 @@ export function Navbar() {
                         )}
                       </div>
 
+                      {/* Trial account shortcuts */}
+                      {isDemo && (
+                        <div className="py-1 bg-indigo-50/70 dark:bg-indigo-950/40 text-xs border-t border-b border-indigo-100 dark:border-indigo-900/60">
+                          <button
+                            onClick={async () => {
+                              setUserDropdownOpen(false);
+                              await logout();
+                              router.push("/register");
+                            }}
+                            className="w-full flex items-center gap-2.5 px-4 py-2 font-bold text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100/70 dark:hover:bg-indigo-900/60 transition text-left cursor-pointer"
+                          >
+                            <UserPlus className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                            <span>Đăng ký tài khoản thật</span>
+                          </button>
+                          <button
+                            onClick={async () => {
+                              setUserDropdownOpen(false);
+                              await logout();
+                              router.push("/login");
+                            }}
+                            className="w-full flex items-center gap-2.5 px-4 py-2 font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition text-left cursor-pointer"
+                          >
+                            <LogIn className="w-4 h-4 text-slate-500" />
+                            <span>Đăng nhập tài khoản cá nhân</span>
+                          </button>
+                        </div>
+                      )}
+
                       {/* Explicit Logout Action */}
                       <div className="py-1">
                         <button
                           onClick={handleLogout}
-                          className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition text-left"
+                          className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition text-left cursor-pointer"
                         >
                           <LogOut className="w-4 h-4 text-rose-500" />
                           <span>Đăng xuất tài khoản</span>
@@ -207,12 +236,27 @@ export function Navbar() {
                   )}
                 </div>
 
+                {/* Quick Register button for Trial user on desktop */}
+                {isDemo && (
+                  <button
+                    onClick={async () => {
+                      await logout();
+                      router.push("/register");
+                    }}
+                    className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition cursor-pointer"
+                    title="Tạo tài khoản học sinh chính thức miễn phí"
+                  >
+                    <UserPlus className="w-3.5 h-3.5" />
+                    <span>Đăng ký thật</span>
+                  </button>
+                )}
+
                 {/* Direct quick logout icon button */}
                 <button
                   type="button"
                   onClick={handleLogout}
                   title="Đăng xuất khỏi tài khoản"
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 border border-transparent hover:border-rose-200 dark:hover:border-rose-900 transition"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 border border-transparent hover:border-rose-200 dark:hover:border-rose-900 transition cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -325,6 +369,33 @@ export function Navbar() {
                       <span>Trang Quản trị Admin (CMS)</span>
                     </Button>
                   </Link>
+                )}
+                {isDemo && (
+                  <>
+                    <Button
+                      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold"
+                      onClick={async () => {
+                        setMobileMenuOpen(false);
+                        await logout();
+                        router.push("/register");
+                      }}
+                    >
+                      <UserPlus className="w-4 h-4 mr-2" />
+                      <span>Đăng ký tài khoản thật</span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 font-semibold"
+                      onClick={async () => {
+                        setMobileMenuOpen(false);
+                        await logout();
+                        router.push("/login");
+                      }}
+                    >
+                      <LogIn className="w-4 h-4 mr-2" />
+                      <span>Đăng nhập tài khoản cá nhân</span>
+                    </Button>
+                  </>
                 )}
                 <Button
                   variant="ghost"

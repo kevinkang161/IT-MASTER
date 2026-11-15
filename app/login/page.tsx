@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -20,7 +20,14 @@ import { useAuth } from "@/lib/auth/auth-context";
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login } = useAuth();
+  const { login, isDemo, logout } = useAuth();
+
+  // If entering login while in trial mode, automatically clear trial session
+  useEffect(() => {
+    if (isDemo) {
+      logout();
+    }
+  }, [isDemo, logout]);
 
   const redirectUrl = searchParams?.get("redirect") || "/dashboard";
   const isRequired = searchParams?.get("required") === "1";

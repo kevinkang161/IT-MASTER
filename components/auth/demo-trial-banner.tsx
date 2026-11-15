@@ -2,13 +2,28 @@
 
 import React from "react";
 import Link from "next/link";
-import { Sparkles, Lock, ArrowRight, ShieldCheck, CheckCircle2, UserPlus, LogIn } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Sparkles, Lock, ArrowRight, CheckCircle2, UserPlus, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth/auth-context";
 
 export function DemoTrialBanner({ className = "" }: { className?: string }) {
+  const router = useRouter();
+  const { logout } = useAuth();
+
+  const handleRegister = async () => {
+    await logout();
+    router.push("/register");
+  };
+
+  const handleLogin = async () => {
+    await logout();
+    router.push("/login");
+  };
+
   return (
     <div
-      className={`bg-gradient-to-r from-amber-500/10 via-indigo-500/10 to-blue-500/10 border-b border-amber-300/40 dark:border-amber-500/20 px-4 py-2.5 text-xs text-slate-800 dark:text-slate-200 transition-colors ${className}`}
+      className={`bg-gradient-to-r from-amber-500/10 via-indigo-500/10 to-blue-500/10 border-b border-amber-300/40 dark:border-amber-500/20 px-4 py-2 text-xs text-slate-800 dark:text-slate-200 transition-colors ${className}`}
     >
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
@@ -17,20 +32,31 @@ export function DemoTrialBanner({ className = "" }: { className?: string }) {
           </div>
           <div>
             <span className="font-bold text-amber-700 dark:text-amber-400 mr-1.5 font-mono">
-              [TÀI KHOẢN MẪU]
+              [TÀI KHOẢN HỌC THỬ]
             </span>
             <span>
-              Bạn đang học thử (giới hạn 3 bài học & 1 đề thi). Hãy tạo tài khoản thật sự để mở khóa toàn bộ 95+ bài giảng và lưu lịch sử học tập!
+              Bạn đang học thử (tối đa 3 bài học & 1 đề thi). Muốn học không giới hạn và lưu điểm số?
             </span>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/register">
-            <Button size="sm" className="h-7 text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 font-semibold shadow-xs">
-              <UserPlus className="w-3.5 h-3.5 mr-1" />
-              <span>Đăng ký thật sự (Miễn phí)</span>
-            </Button>
-          </Link>
+          <Button
+            size="sm"
+            onClick={handleRegister}
+            className="h-7 text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 font-semibold shadow-xs cursor-pointer"
+          >
+            <UserPlus className="w-3.5 h-3.5 mr-1" />
+            <span>Đăng ký tài khoản thật (Miễn phí)</span>
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleLogin}
+            className="h-7 text-xs border-amber-300 dark:border-amber-700/80 text-slate-700 dark:text-slate-300 px-2.5 font-medium hover:bg-white dark:hover:bg-slate-800 cursor-pointer"
+          >
+            <LogIn className="w-3.5 h-3.5 mr-1" />
+            <span>Đăng nhập</span>
+          </Button>
         </div>
       </div>
     </div>
@@ -44,8 +70,21 @@ export function DemoLockedCard({
   itemType?: "bài học" | "đề thi";
   redirectUrl?: string;
 }) {
-  const registerLink = redirectUrl ? `/register?redirect=${encodeURIComponent(redirectUrl)}` : "/register";
-  const loginLink = redirectUrl ? `/login?redirect=${encodeURIComponent(redirectUrl)}` : "/login";
+  const router = useRouter();
+  const { logout } = useAuth();
+
+  const registerTarget = redirectUrl ? `/register?redirect=${encodeURIComponent(redirectUrl)}` : "/register";
+  const loginTarget = redirectUrl ? `/login?redirect=${encodeURIComponent(redirectUrl)}` : "/login";
+
+  const handleRegister = async () => {
+    await logout();
+    router.push(registerTarget);
+  };
+
+  const handleLogin = async () => {
+    await logout();
+    router.push(loginTarget);
+  };
 
   return (
     <div className="my-10 max-w-2xl mx-auto p-6 sm:p-10 rounded-3xl bg-white dark:bg-[#0f172a] border-2 border-indigo-200 dark:border-indigo-900 shadow-xl text-center space-y-6">
@@ -90,21 +129,24 @@ export function DemoLockedCard({
         </div>
       </div>
 
-      {/* ACTIONS */}
+      {/* ACTIONS: Direct logout and redirect */}
       <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
-        <Link href={registerLink} className="w-full sm:w-auto">
-          <Button className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2.5">
-            <UserPlus className="w-4 h-4 mr-2" />
-            <span>Tạo tài khoản học sinh ngay — Miễn phí 100%</span>
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
-        </Link>
-        <Link href={loginLink} className="w-full sm:w-auto">
-          <Button variant="outline" className="w-full sm:w-auto border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300">
-            <LogIn className="w-4 h-4 mr-2" />
-            <span>Đăng nhập tài khoản của bạn</span>
-          </Button>
-        </Link>
+        <Button
+          onClick={handleRegister}
+          className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2.5 cursor-pointer"
+        >
+          <UserPlus className="w-4 h-4 mr-2" />
+          <span>Tạo tài khoản học sinh ngay — Miễn phí 100%</span>
+          <ArrowRight className="w-4 h-4 ml-2" />
+        </Button>
+        <Button
+          variant="outline"
+          onClick={handleLogin}
+          className="w-full sm:w-auto border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 cursor-pointer"
+        >
+          <LogIn className="w-4 h-4 mr-2" />
+          <span>Đăng nhập tài khoản của bạn</span>
+        </Button>
       </div>
 
       <div>

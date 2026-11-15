@@ -22,7 +22,7 @@ function AuthGuardInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { user, isLoading, isAdmin } = useAuth();
+  const { user, isLoading, isAdmin, isDemo, logout } = useAuth();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   useEffect(() => {
@@ -40,15 +40,22 @@ function AuthGuardInner({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // 2. Authenticated user trying to access /login or /register
-    if (user && (pathname === "/login" || pathname === "/register")) {
+    // 2. If a trial/demo user navigates to /login or /register:
+    // Automatically end trial session so they can seamlessly register or sign in with their real account directly!
+    if (user && isDemo && (pathname === "/login" || pathname === "/register")) {
+      logout();
+      return;
+    }
+
+    // 3. Authenticated REAL user trying to access /login or /register
+    if (user && !isDemo && (pathname === "/login" || pathname === "/register")) {
       setIsRedirecting(true);
       const redirectTarget = searchParams?.get("redirect") || "/dashboard";
       router.replace(redirectTarget);
       return;
     }
 
-    // 3. Non-admin trying to access /admin
+    // 4. Non-admin trying to access /admin
     if (user && pathname.startsWith("/admin") && !isAdmin) {
       setIsRedirecting(true);
       router.replace("/dashboard");
@@ -56,7 +63,7 @@ function AuthGuardInner({ children }: { children: React.ReactNode }) {
     }
 
     setIsRedirecting(false);
-  }, [user, isLoading, pathname, searchParams, isAdmin, router]);
+  }, [user, isLoading, pathname, searchParams, isAdmin, isDemo, logout, router]);
 
   const publicRoute = isPublicPath(pathname);
 
