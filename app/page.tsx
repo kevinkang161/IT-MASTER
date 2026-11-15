@@ -235,29 +235,20 @@ export default function HomePage() {
         </section>
 
         {/* VIDEO LECTURES SHOWCASE */}
-        <section className="py-16 sm:py-20 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
-            <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900 mb-2">
-                <Film className="w-3.5 h-3.5" />
-                <span>Video Bài giảng Trực quan</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-                Học qua Video thực hành & Hướng dẫn chi tiết
-              </h2>
-              <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm mt-1.5 max-w-2xl leading-relaxed">
-                Tập hợp các video bài giảng chọn lọc bám sát chương trình Tin học 10, 11, 12: từ cú pháp Python căn bản, mô phỏng thuật toán tìm kiếm đến thực hành CSDL quan hệ và thiết kế trang web.
-              </p>
-            </div>
+        <section id="videos" className="py-16 sm:py-20 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <VideoLibrary
+            title="Video Bài Giảng Ôn Thi (Kết Nối Tri Thức)"
+            subtitle="Tập hợp các video bài giảng chọn lọc bám sát chương trình Tin học 10, 11, 12 Kết nối tri thức: từ cú pháp Python căn bản, thuật toán tìm kiếm đến thực hành CSDL SQL và thiết kế web."
+            limit={6}
+          />
+          <div className="mt-8 text-center">
             <Link href="/videos">
-              <Button variant="outline" className="text-xs font-bold border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 gap-1.5 shrink-0">
-                <span>Xem tất cả video</span>
+              <Button variant="outline" className="text-xs font-bold border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 gap-1.5 px-6 py-2.5">
+                <span>Xem tất cả video bài giảng ôn thi</span>
                 <ChevronRight className="w-4 h-4" />
               </Button>
             </Link>
           </div>
-
-          <VideoLibrary showHeader={false} limit={6} />
         </section>
 
         {/* CALL TO ACTION: MOCK EXAMS */}

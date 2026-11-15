@@ -1,0 +1,9 @@
+[
+  { "grade": "10", "track": "Chung", "title": "Bài 16: Ngôn ngữ lập trình bậc cao và Python", "url": "https://www.youtube.com/watch?v=WAFMOxkTLqU" },
+  { "grade": "10", "track": "Chung", "title": "Học Python - Ôn tập Tin học 10 cuối kỳ 2", "url": "https://www.youtube.com/watch?v=EhgXM_YWpok" },
+  { "grade": "11", "track": "Khoa học máy tính", "title": "Bài 20: Thực hành bài toán tìm kiếm", "url": "https://www.youtube.com/watch?v=JGxnEgX9Uec" },
+  { "grade": "11", "track": "Tin học ứng dụng", "title": "Bài 20: Thực hành tạo lập các bảng có khóa ngoài", "url": "https://www.youtube.com/watch?v=06uU4WK87z0" },
+  { "grade": "12", "track": "Chung", "title": "Bài 17: Các mức ưu tiên của bộ chọn (CSS)", "url": "https://www.youtube.com/watch?v=pE5krdeyg_U" },
+  { "grade": "12", "track": "Khoa học máy tính", "title": "Bài 29: Mô phỏng trong giải quyết vấn đề", "url": "https://www.youtube.com/watch?v=Fs1GecPiQ2c" },
+  { "grade": "12", "track": "Tin học ứng dụng", "title": "Bài 23: Chuẩn bị xây dựng trang web", "url": "https://www.youtube.com/watch?v=grNdxntaLEA" }
+]

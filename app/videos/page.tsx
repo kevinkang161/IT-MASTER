@@ -31,8 +31,8 @@ export default function VideosPage() {
 
         {/* EMBEDDED VIDEO LIBRARY CLIENT COMPONENT */}
         <VideoLibrary
-          title="Kho Video Bài giảng Tin học Trực quan"
-          subtitle="Tổng hợp các bài giảng video chọn lọc bám sát SGK Kết nối tri thức 10, 11, 12. Kết hợp thực hành Python, thao tác CSDL SQL và thiết kế web tương tác."
+          title="Video Bài Giảng Ôn Thi (Kết Nối Tri Thức)"
+          subtitle="Tổng hợp các bài giảng video chọn lọc bám sát SGK Kết nối tri thức 10, 11, 12. Kết hợp thực hành lập trình Python, thao tác CSDL SQL và thiết kế web tương tác."
         />
       </main>
 
