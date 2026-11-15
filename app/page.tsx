@@ -26,6 +26,7 @@ import { Footer } from "@/components/layout/footer";
 import { Button } from "@/components/ui/button";
 import { MOCK_GRADES } from "@/lib/mock-data";
 import { VideoLibrary } from "@/components/VideoLibrary";
+import { ParticleNetwork } from "@/components/ParticleNetwork";
 
 export default function HomePage() {
   const pillars = [
@@ -85,9 +86,27 @@ export default function HomePage() {
       <Navbar />
 
       <main className="flex-1">
-        {/* HERO SECTION: Clear, editorial, confident */}
-        <section className="bg-slate-950 text-white pt-20 pb-24 border-b border-slate-900 relative">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* HERO SECTION: Clear, editorial, confident with Dynamic Video & Particle Network */}
+        <section className="bg-[#070B19] text-white pt-20 pb-24 border-b border-slate-900 relative overflow-hidden">
+          {/* 1. Dynamic Video Background (Dark mode, autoPlay, loop, muted, playsInline, opacity-45) */}
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover opacity-45 dark:block hidden pointer-events-none"
+            src="/videos/hero-bg.mp4"
+          />
+
+          {/* 2. Gradient Overlays: Left-to-Right and Bottom-to-Top */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#070B19] via-[#070B19]/75 to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#070B19] via-transparent to-transparent pointer-events-none" />
+
+          {/* 3. Interactive Particle Network Canvas (opacity-25) */}
+          <ParticleNetwork />
+
+          {/* Foreground Hero Content */}
+          <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl">
               <span className="inline-block text-xs font-semibold text-blue-400 tracking-wider mb-4">
                 Chương trình Giáo dục phổ thông 2018 • Định dạng thi tốt nghiệp 2025+
