@@ -15,6 +15,7 @@ interface AuthContextType {
   role: UserRole;
   isLoading: boolean;
   isAdmin: boolean;
+  isDemo: boolean;
   login: (email: string, password?: string) => Promise<{ success: boolean; error?: string }>;
   register: (fullName: string, email: string, gradeLevel: 10 | 11 | 12, password?: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
@@ -377,6 +378,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Strict admin check: must have admin role AND be verified
   const isAdmin = user ? (ADMIN_EMAILS.includes(user.email.toLowerCase()) || role === "admin") : false;
 
+  // Demo user check: identifies whether user is using the guest/sample student trial
+  const isDemo = Boolean(
+    user && (
+      user.email === "hocsinh.demo@itmaster.edu.vn" ||
+      user.id === "user-demo-01" ||
+      (typeof window !== "undefined" && sessionStorage.getItem("it_master_demo_active") === "true")
+    )
+  );
+
   return (
     <AuthContext.Provider
       value={{
@@ -384,6 +394,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         role,
         isLoading,
         isAdmin,
+        isDemo,
         login,
         register,
         logout,

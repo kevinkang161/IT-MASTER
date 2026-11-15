@@ -185,7 +185,7 @@ function LoginForm() {
               disabled={isLoading}
             >
               <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mr-2" />
-              Đăng nhập tài khoản Học sinh Mẫu
+              Trải nghiệm nhanh — Học sinh Mẫu (Giới hạn 3 bài)
             </Button>
           </div>
         </div>

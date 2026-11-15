@@ -27,6 +27,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth/auth-context";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { DemoTrialBanner } from "@/components/auth/demo-trial-banner";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -34,7 +35,7 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { user, isAdmin, logout } = useAuth();
+  const { user, isAdmin, isDemo, logout } = useAuth();
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -64,6 +65,7 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-[#0B1120]/95 backdrop-blur-md transition-colors">
+      {isDemo && <DemoTrialBanner />}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}

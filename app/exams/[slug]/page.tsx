@@ -25,14 +25,17 @@ import { useAuth } from "@/lib/auth/auth-context";
 import { recordExamSubmitted } from "@/lib/progress";
 import { MOCK_EXAMS, MOCK_QUESTIONS } from "@/lib/mock-data";
 import { Question } from "@/types/database";
+import { isExamUnlockedForUser } from "@/lib/trial-limits";
+import { DemoLockedCard } from "@/components/auth/demo-trial-banner";
 
 export default function ExamRoomPage() {
   const params = useParams();
   const slug = params?.slug as string;
   const router = useRouter();
-  const { user, addXp } = useAuth();
+  const { user, isDemo, addXp } = useAuth();
 
   const exam = MOCK_EXAMS.find((e) => e.slug === slug) || MOCK_EXAMS[0];
+  const isUnlocked = isExamUnlockedForUser(slug, isDemo);
   const questions: Question[] = MOCK_QUESTIONS;
 
   const [timeLeft, setTimeLeft] = useState(exam.duration_minutes * 60);
@@ -220,6 +223,26 @@ export default function ExamRoomPage() {
   const singleChoiceQuestions = questions.filter((q) => q.question_type === "single_choice");
   const trueFalseQuestions = questions.filter((q) => q.question_type === "true_false");
   const shortAnswerQuestions = questions.filter((q) => q.question_type === "short_answer");
+
+  if (!isUnlocked) {
+    return (
+      <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0B1120] text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors p-4 sm:p-8">
+        <div className="max-w-7xl w-full mx-auto mb-6 flex items-center justify-between">
+          <Link
+            href="/exams"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-indigo-600 transition"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Quay lại danh sách phòng thi</span>
+          </Link>
+          <ThemeToggle />
+        </div>
+        <main className="flex-1 max-w-7xl w-full mx-auto">
+          <DemoLockedCard itemType="đề thi" redirectUrl={`/exams/${slug}`} />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0B1120] text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors">

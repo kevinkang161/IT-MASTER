@@ -27,14 +27,17 @@ import { CodeViewer } from "@/components/ui/code-viewer";
 import { useAuth } from "@/lib/auth/auth-context";
 import { recordLessonCompleted } from "@/lib/progress";
 import { MOCK_LESSONS, MOCK_QUESTIONS } from "@/lib/mock-data";
+import { isLessonUnlockedForUser } from "@/lib/trial-limits";
+import { DemoLockedCard } from "@/components/auth/demo-trial-banner";
 
 export default function SingleLessonPage() {
   const params = useParams();
   const slug = params?.slug as string;
   const router = useRouter();
-  const { user, addXp } = useAuth();
+  const { user, isDemo, addXp } = useAuth();
 
   const lesson = MOCK_LESSONS.find((l) => l.slug === slug) || MOCK_LESSONS[0];
+  const isUnlocked = isLessonUnlockedForUser(slug, isDemo);
   const [isCompleted, setIsCompleted] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [quizAnswer, setQuizAnswer] = useState<string | null>(null);
@@ -50,6 +53,18 @@ export default function SingleLessonPage() {
       recordLessonCompleted(user?.id, lesson.slug);
     }
   };
+
+  if (!isUnlocked) {
+    return (
+      <div className="min-h-screen flex flex-col bg-[#F8FAFC] dark:bg-[#0B1120] text-slate-900 dark:text-slate-100 transition-colors">
+        <Navbar />
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <DemoLockedCard itemType="bài học" redirectUrl={`/learning/${slug}`} />
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8FAFC] dark:bg-[#0B1120] text-slate-900 dark:text-slate-100 transition-colors">
