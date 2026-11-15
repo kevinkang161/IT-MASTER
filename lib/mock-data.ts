@@ -479,7 +479,7 @@ export const MOCK_ACHIEVEMENTS: Achievement[] = [
 export const MOCK_PROFILE: Profile = {
   id: "user-demo-01",
   email: "hocsinh.demo@itmaster.edu.vn",
-  full_name: "Nguyễn Văn An",
+  full_name: "Học sinh Mẫu (Trải nghiệm)",
   avatar_url: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&h=200&q=80",
   role: "student",
   grade_level: 12,
@@ -495,7 +495,7 @@ export const MOCK_PROFILE: Profile = {
 export const MOCK_LEADERBOARD = [
   { id: "u-1", name: "Trần Minh Quân", grade: "12A1", xp: 3420, level: 6, streak: 14, avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80" },
   { id: "u-2", name: "Lê Thị Thảo Linh", grade: "12A3", xp: 2890, level: 5, streak: 19, avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80" },
-  { id: "u-3", name: "Nguyễn Văn An (Bạn)", grade: "12A1", xp: 1250, level: 3, streak: 5, avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80" },
+  { id: "u-3", name: "Bạn (Học sinh)", grade: "12A1", xp: 1250, level: 3, streak: 5, avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80" },
   { id: "u-4", name: "Hoàng Gia Bảo", grade: "11B2", xp: 1100, level: 3, streak: 4, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80" },
   { id: "u-5", name: "Phạm Hải Yến", grade: "10A5", xp: 950, level: 2, streak: 8, avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80" },
 ];

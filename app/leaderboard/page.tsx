@@ -128,17 +128,21 @@ export default function LeaderboardPage() {
               3
             </div>
             <img
-              src={MOCK_LEADERBOARD[2].avatar}
-              alt={MOCK_LEADERBOARD[2].name}
+              src={user?.avatar_url || MOCK_LEADERBOARD[2].avatar}
+              alt={user ? user.full_name : "Bạn"}
               className="w-16 h-16 rounded-full mx-auto object-cover border-2 border-amber-400/50 dark:border-amber-700/50"
             />
             <div>
-              <h4 className="text-sm font-bold text-slate-900 dark:text-white">{MOCK_LEADERBOARD[2].name}</h4>
-              <span className="text-xs text-slate-500 dark:text-slate-400">{MOCK_LEADERBOARD[2].grade}</span>
+              <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                {user ? `${user.full_name} (Bạn)` : "Bạn (Vị trí tạm)"}
+              </h4>
+              <span className="text-xs text-slate-500 dark:text-slate-400">
+                {user ? `Lớp ${user.grade_level || 12}` : MOCK_LEADERBOARD[2].grade}
+              </span>
             </div>
             <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-center gap-1 font-black text-blue-600 dark:text-blue-400 text-sm">
               <Zap className="w-4 h-4 fill-blue-500" />
-              <span>{MOCK_LEADERBOARD[2].xp.toLocaleString()} XP</span>
+              <span>{(user?.xp || MOCK_LEADERBOARD[2].xp).toLocaleString()} XP</span>
             </div>
           </div>
         </div>
@@ -151,47 +155,56 @@ export default function LeaderboardPage() {
           </div>
 
           <div className="divide-y divide-slate-100 dark:divide-slate-800">
-            {MOCK_LEADERBOARD.map((item, idx) => (
-              <div
-                key={item.id}
-                className={`p-4 sm:px-6 flex items-center justify-between gap-4 transition ${
-                  item.name.includes("Bạn") ? "bg-blue-50/70 dark:bg-blue-950/40" : "hover:bg-slate-50 dark:hover:bg-slate-800/40"
-                }`}
-              >
-                <div className="flex items-center gap-3 sm:gap-4">
-                  <span className="w-6 text-center text-sm font-black text-slate-400">
-                    {idx + 1}
-                  </span>
-                  <img
-                    src={item.avatar}
-                    alt={item.name}
-                    className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700"
-                  />
-                  <div>
-                    <h5 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                      <span>{item.name}</span>
-                      {item.name.includes("Bạn") && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-600 text-white">
-                          Bạn
-                        </span>
-                      )}
-                    </h5>
-                    <span className="text-xs text-slate-400">{item.grade} • Cấp {item.level}</span>
-                  </div>
-                </div>
+            {MOCK_LEADERBOARD.map((item, idx) => {
+              const isCurrentUserSlot = item.id === "u-3";
+              const displayName = isCurrentUserSlot ? (user ? `${user.full_name} (Bạn)` : "Bạn (Chưa đăng nhập)") : item.name;
+              const displayGrade = isCurrentUserSlot && user ? `Lớp ${user.grade_level || 12}` : item.grade;
+              const displayXp = isCurrentUserSlot && user ? (user.xp || item.xp) : item.xp;
+              const displayAvatar = isCurrentUserSlot && user?.avatar_url ? user.avatar_url : item.avatar;
+              const isUserHighlight = isCurrentUserSlot;
 
-                <div className="flex items-center gap-4 text-xs font-semibold">
-                  <div className="hidden sm:flex items-center gap-1 text-amber-600 dark:text-amber-400">
-                    <Flame className="w-4 h-4 fill-amber-500" />
-                    <span>{item.streak} ngày</span>
+              return (
+                <div
+                  key={item.id}
+                  className={`p-4 sm:px-6 flex items-center justify-between gap-4 transition ${
+                    isUserHighlight ? "bg-blue-50/70 dark:bg-blue-950/40" : "hover:bg-slate-50 dark:hover:bg-slate-800/40"
+                  }`}
+                >
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <span className="w-6 text-center text-sm font-black text-slate-400">
+                      {idx + 1}
+                    </span>
+                    <img
+                      src={displayAvatar}
+                      alt={displayName}
+                      className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700"
+                    />
+                    <div>
+                      <h5 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <span>{displayName}</span>
+                        {isUserHighlight && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-600 text-white">
+                            Bạn
+                          </span>
+                        )}
+                      </h5>
+                      <span className="text-xs text-slate-400">{displayGrade} • Cấp {item.level}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1 text-blue-600 dark:text-blue-400 font-bold text-sm">
-                    <Zap className="w-4 h-4 fill-blue-500" />
-                    <span>{item.xp.toLocaleString()} XP</span>
+
+                  <div className="flex items-center gap-4 text-xs font-semibold">
+                    <div className="hidden sm:flex items-center gap-1 text-amber-600 dark:text-amber-400">
+                      <Flame className="w-4 h-4 fill-amber-500" />
+                      <span>{item.streak} ngày</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-blue-600 dark:text-blue-400 font-bold">
+                      <Zap className="w-4 h-4 fill-blue-500" />
+                      <span>{displayXp.toLocaleString()} XP</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
