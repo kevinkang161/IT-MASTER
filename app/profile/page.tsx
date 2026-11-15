@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   User,
   Mail,
@@ -15,6 +16,9 @@ import {
   CheckCircle2,
   Save,
   ShieldCheck,
+  LogOut,
+  LogIn,
+  UserPlus,
 } from "lucide-react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
@@ -25,15 +29,17 @@ import { useAuth } from "@/lib/auth/auth-context";
 import { calculateLevel } from "@/lib/utils";
 
 export default function ProfilePage() {
-  const { user, updateProfile } = useAuth();
+  const router = useRouter();
+  const { user, isAdmin, updateProfile, logout } = useAuth();
   const [fullName, setFullName] = useState(user?.full_name || "");
   const [gradeLevel, setGradeLevel] = useState<10 | 11 | 12>(user?.grade_level || 12);
   const [isSavedNotice, setIsSavedNotice] = useState(false);
 
-  const xpStats = calculateLevel(user?.xp || 1250);
+  const xpStats = calculateLevel(user?.xp || 0);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) return;
     await updateProfile({
       full_name: fullName,
       grade_level: gradeLevel,
@@ -42,50 +48,108 @@ export default function ProfilePage() {
     setTimeout(() => setIsSavedNotice(false), 3000);
   };
 
+  const handleLogout = async () => {
+    await logout();
+    router.push("/login");
+  };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col bg-[#F8FAFC] dark:bg-[#0B1120] text-slate-900 dark:text-slate-100 transition-colors">
+        <Navbar />
+        <main className="flex-1 max-w-md w-full mx-auto px-4 py-20 text-center space-y-6">
+          <div className="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 mx-auto flex items-center justify-center">
+            <User className="w-8 h-8" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+              Bạn chưa đăng nhập
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+              Vui lòng đăng nhập hoặc tạo tài khoản mới để xem và chỉnh sửa thông tin hồ sơ học sinh của bạn.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <Link href="/login" className="w-full sm:w-auto">
+              <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold">
+                <LogIn className="w-4 h-4 mr-1.5" />
+                <span>Đăng nhập</span>
+              </Button>
+            </Link>
+            <Link href="/register" className="w-full sm:w-auto">
+              <Button variant="outline" className="w-full border-slate-200 dark:border-slate-800">
+                <UserPlus className="w-4 h-4 mr-1.5" />
+                <span>Đăng ký học sinh mới</span>
+              </Button>
+            </Link>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-[#F8FAFC] dark:bg-[#0B1120] text-slate-900 dark:text-slate-100 transition-colors">
       <Navbar />
 
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8">
-        <div className="space-y-1">
-          <Badge variant="primary">Hồ sơ cá nhân</Badge>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            Thông tin học sinh & Lịch sử học tập
-          </h1>
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <Badge variant="primary">Hồ sơ cá nhân</Badge>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Thông tin học sinh & Lịch sử học tập
+            </h1>
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleLogout}
+            className="text-rose-600 border-rose-200 dark:border-rose-900/60 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-semibold gap-1.5"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Đăng xuất</span>
+          </Button>
         </div>
 
         {/* PROFILE HEADER CARD */}
         <Card className="p-6 sm:p-8 bg-white dark:bg-[#0f172a] border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row items-center gap-6">
           <img
-            src={user?.avatar_url || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&h=200&q=80"}
-            alt={user?.full_name || "Avatar"}
+            src={user.avatar_url || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&h=200&q=80"}
+            alt={user.full_name || "Avatar"}
             className="w-24 h-24 rounded-3xl object-cover border-4 border-blue-100 dark:border-blue-900 shadow-md"
           />
 
           <div className="space-y-2 text-center sm:text-left flex-1">
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">{user?.full_name || "Nguyễn Văn An"}</h2>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white">{user.full_name}</h2>
               <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                Lớp {user?.grade_level || 12}
+                Lớp {user.grade_level || 12}
               </span>
               <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
                 Cấp độ {xpStats.level}
               </span>
+              {isAdmin && (
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">
+                  Quản trị viên
+                </span>
+              )}
             </div>
 
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 flex items-center justify-center sm:justify-start gap-1.5">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 flex items-center justify-center sm:justify-start gap-1.5 font-mono">
               <Mail className="w-4 h-4 text-slate-400" />
-              <span>{user?.email || "hocsinh.demo@itmaster.edu.vn"}</span>
+              <span>{user.email}</span>
             </p>
 
             <div className="flex items-center justify-center sm:justify-start gap-4 pt-1 text-xs font-semibold">
               <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
                 <Flame className="w-4 h-4 fill-amber-500" />
-                <span>Chuỗi {user?.streak_days || 5} ngày (Kỷ lục: {user?.longest_streak || 12} ngày)</span>
+                <span>Chuỗi {user.streak_days || 1} ngày (Kỷ lục: {user.longest_streak || 1} ngày)</span>
               </div>
               <div className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
                 <Zap className="w-4 h-4 fill-blue-500" />
-                <span>{(user?.xp || 1250).toLocaleString()} XP</span>
+                <span>{(user.xp || 0).toLocaleString()} XP</span>
               </div>
             </div>
           </div>
@@ -134,10 +198,21 @@ export default function ProfilePage() {
               </select>
             </div>
 
-            <div className="pt-2">
-              <Button type="submit" size="sm" className="gap-2">
+            <div className="pt-2 flex items-center justify-between">
+              <Button type="submit" size="sm" className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white">
                 <Save className="w-4 h-4" />
                 <span>Lưu thay đổi</span>
+              </Button>
+
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs"
+              >
+                <LogOut className="w-4 h-4 mr-1.5" />
+                <span>Đăng xuất tài khoản này</span>
               </Button>
             </div>
           </form>

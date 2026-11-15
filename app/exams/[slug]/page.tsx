@@ -22,6 +22,7 @@ import { CodeViewer } from "@/components/ui/code-viewer";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { formatTime } from "@/lib/utils";
 import { useAuth } from "@/lib/auth/auth-context";
+import { recordExamSubmitted } from "@/lib/progress";
 import { MOCK_EXAMS, MOCK_QUESTIONS } from "@/lib/mock-data";
 import { Question } from "@/types/database";
 
@@ -29,7 +30,7 @@ export default function ExamRoomPage() {
   const params = useParams();
   const slug = params?.slug as string;
   const router = useRouter();
-  const { addXp } = useAuth();
+  const { user, addXp } = useAuth();
 
   const exam = MOCK_EXAMS.find((e) => e.slug === slug) || MOCK_EXAMS[0];
   const questions: Question[] = MOCK_QUESTIONS;
@@ -150,6 +151,15 @@ export default function ExamRoomPage() {
     const finalScore = Number(Math.min(exam.max_score, rawScore).toFixed(2));
     const xpReward = Math.round(exam.xp_reward * (finalScore / exam.max_score));
     addXp(xpReward, `Hoàn thành bài thi: ${exam.title} (${finalScore}/${exam.max_score} điểm)`);
+
+    recordExamSubmitted(user?.id, {
+      examId: exam.id,
+      examTitle: exam.title,
+      score: finalScore,
+      maxScore: exam.max_score,
+      accuracy: Math.round((finalScore / exam.max_score) * 100),
+      date: new Date().toLocaleDateString("vi-VN"),
+    });
 
     window.scrollTo({ top: 0, behavior: "smooth" });
   };

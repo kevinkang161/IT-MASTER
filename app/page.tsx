@@ -101,8 +101,17 @@ export default function HomePage() {
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-4">
-                <Link href="/learning">
+                <Link href="/register">
                   <Button size="lg" className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 shadow-sm">
+                    Tạo tài khoản học sinh
+                  </Button>
+                </Link>
+                <Link href="/learning">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:text-white px-6"
+                  >
                     Khám phá bài học
                   </Button>
                 </Link>
@@ -112,11 +121,11 @@ export default function HomePage() {
                     size="lg"
                     className="border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-800 hover:text-white px-6"
                   >
-                    Vào phòng thi thử
+                    Phòng thi thử THPT
                   </Button>
                 </Link>
-                <Link href="/#contact" className="text-xs text-slate-400 hover:text-slate-200 underline ml-2">
-                  Liên hệ chuyên môn
+                <Link href="/login" className="text-xs text-slate-400 hover:text-slate-200 underline ml-2">
+                  Đã có tài khoản? Đăng nhập
                 </Link>
               </div>
             </div>

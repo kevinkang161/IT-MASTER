@@ -98,6 +98,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           try {
             const parsed = JSON.parse(saved);
             if (parsed && parsed.email) {
+              // Purge legacy demo profile automatically so visitors always start as Guest (Chưa đăng nhập)
+              if (parsed.email === "hocsinh.demo@itmaster.edu.vn" || parsed.id === "user-demo-01") {
+                const isExplicitDemo = typeof window !== "undefined" && sessionStorage.getItem("it_master_demo_active") === "true";
+                if (!isExplicitDemo) {
+                  localStorage.removeItem(LOCAL_STORAGE_KEY);
+                  setUser(null);
+                  setIsLoading(false);
+                  return;
+                }
+              }
+
               const isEmailAdmin = ADMIN_EMAILS.includes((parsed.email || "").toLowerCase());
               if (isEmailAdmin) parsed.role = "admin";
               setUser(parsed);
@@ -130,6 +141,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // 1. Demo Student account shortcut
       if (cleanEmail === "hocsinh.demo@itmaster.edu.vn" && (!password || password === "demo123456")) {
         setUser(MOCK_PROFILE);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("it_master_demo_active", "true");
+        }
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(MOCK_PROFILE));
         setIsLoading(false);
         return { success: true };
@@ -145,9 +159,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           role: "admin",
         };
         setUser(adminDemo);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("it_master_demo_active", "true");
+        }
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(adminDemo));
         setIsLoading(false);
         return { success: true };
+      }
+
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("it_master_demo_active");
       }
 
       // 3. Supabase Authentication
@@ -308,8 +329,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await supabase.auth.signOut();
       } catch (_) {}
     }
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("it_master_demo_active");
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+    }
     setUser(null);
-    localStorage.removeItem(LOCAL_STORAGE_KEY);
   };
 
   const updateProfile = async (updates: Partial<Profile>) => {
@@ -340,7 +364,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const addXp = (amount: number, reason: string) => {
     if (!user) return;
-    const newXp = user.xp + amount;
+    const newXp = (user.xp || 0) + amount;
     let level = 1;
     let accumulated = 0;
     let nextThreshold = 150;
@@ -357,6 +381,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
     setUser(updated);
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+
+    const supabase = createClient();
+    if (supabase && user.id && !user.id.startsWith("user-demo") && !user.id.startsWith("usr-admin-demo")) {
+      try {
+        supabase.from("profiles").update({ xp: newXp, level, updated_at: new Date().toISOString() }).eq("id", user.id).then(() => {});
+        supabase.auth.updateUser({ data: { xp: newXp, level } }).catch(() => {});
+      } catch (_) {}
+    }
   };
 
   const role: UserRole = user?.role || "student";

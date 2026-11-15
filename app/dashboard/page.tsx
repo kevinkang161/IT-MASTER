@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   BookOpen,
   CheckCircle2,
@@ -22,6 +23,9 @@ import {
   ShieldCheck,
   User,
   Star,
+  LogOut,
+  LogIn,
+  UserPlus,
 } from "lucide-react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
@@ -31,16 +35,34 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/lib/auth/auth-context";
 import { calculateLevel } from "@/lib/utils";
+import { getUserProgress } from "@/lib/progress";
 import { MOCK_LESSONS, MOCK_EXAMS, MOCK_ACHIEVEMENTS } from "@/lib/mock-data";
 
 export default function StudentDashboardPage() {
-  const { user, isAdmin } = useAuth();
+  const router = useRouter();
+  const { user, isAdmin, logout } = useAuth();
 
-  const xpStats = calculateLevel(user?.xp || 1250);
-  const lessonsCompleted = 14;
+  const [progressData, setProgressData] = useState(() => getUserProgress(user?.id));
+
+  useEffect(() => {
+    setProgressData(getUserProgress(user?.id));
+  }, [user]);
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/login");
+  };
+
+  const xpStats = calculateLevel(user?.xp || 0);
+  const lessonsCompleted = progressData.completedLessons.length;
   const totalLessons = 44;
-  const exercisesCompleted = 86;
-  const avgExamScore = 8.4;
+  const exercisesCompleted = progressData.totalQuestionsAnswered;
+  const accuracyRate = exercisesCompleted > 0
+    ? Math.round((progressData.totalQuestionsCorrect / exercisesCompleted) * 100)
+    : 100;
+  const avgExamScore = progressData.examHistory.length > 0
+    ? Number((progressData.examHistory.reduce((acc, h) => acc + h.score, 0) / progressData.examHistory.length).toFixed(1))
+    : 0;
 
   const currentLesson = MOCK_LESSONS[0];
 
@@ -49,6 +71,37 @@ export default function StudentDashboardPage() {
       <Navbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8">
+        {/* GUEST BANNER (If not logged in) */}
+        {!user && (
+          <div className="p-5 rounded-3xl bg-indigo-900 border border-indigo-700 text-white shadow-swiss flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-indigo-300">
+                Chế độ Khách trải nghiệm
+              </span>
+              <h2 className="text-base sm:text-lg font-bold text-white">
+                Bạn chưa đăng nhập tài khoản học sinh
+              </h2>
+              <p className="text-xs text-indigo-200 max-w-xl">
+                Đăng ký tài khoản miễn phí để lưu lại toàn bộ tiến độ bài học, kết quả các đề thi thử THPT và tích lũy điểm kinh nghiệm XP của riêng bạn.
+              </p>
+            </div>
+            <div className="flex items-center gap-2.5 shrink-0">
+              <Link href="/login">
+                <Button variant="outline" size="sm" className="bg-indigo-950/60 border-indigo-500/50 text-white hover:bg-indigo-800 text-xs font-semibold">
+                  <LogIn className="w-3.5 h-3.5 mr-1.5" />
+                  <span>Đăng nhập</span>
+                </Button>
+              </Link>
+              <Link href="/register">
+                <Button size="sm" className="bg-white hover:bg-slate-100 text-indigo-950 font-bold text-xs shadow-sm">
+                  <UserPlus className="w-3.5 h-3.5 mr-1.5" />
+                  <span>Đăng ký học sinh mới</span>
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
+
         {/* TOP WELCOME BANNER */}
         <div className="relative overflow-hidden rounded-3xl bg-slate-900 border border-slate-800 text-white p-6 sm:p-8 shadow-swiss">
           <div className="absolute right-0 top-0 translate-x-10 -translate-y-10 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -68,11 +121,13 @@ export default function StudentDashboardPage() {
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
-                    Chào mừng trở lại, {user?.full_name || "Học sinh"}!
+                    {user ? `Chào mừng trở lại, ${user.full_name}!` : "Bảng học tập tổng quan"}
                   </h1>
-                  <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
-                    Lớp {user?.grade_level || 12}
-                  </span>
+                  {user && (
+                    <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
+                      Lớp {user?.grade_level || 12}
+                    </span>
+                  )}
                   {isAdmin && (
                     <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
                       Quản trị viên
@@ -80,21 +135,36 @@ export default function StudentDashboardPage() {
                   )}
                 </div>
                 <p className="text-sm text-slate-300">
-                  Hôm nay là một ngày tuyệt vời để bứt phá môn Tin học! Bạn đã duy trì chuỗi học tập liên tục.
+                  {user
+                    ? `Email: ${user.email} • Tiến độ học tập và rèn luyện kỹ năng Tin học THPT của bạn.`
+                    : "Học tập chuẩn chương trình GDPT 2018 theo bộ sách Kết nối tri thức 10, 11 và 12."}
                 </p>
               </div>
             </div>
 
-            {isAdmin && (
-              <div className="flex items-center gap-2">
+            {/* Quick Actions (Admin CMS & Logout) */}
+            <div className="flex flex-wrap items-center gap-2.5">
+              {isAdmin && (
                 <Link href="/admin">
-                  <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold">
+                  <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs">
                     <ShieldCheck className="w-4 h-4 mr-1.5" />
                     <span>Mở trang Quản trị CMS</span>
                   </Button>
                 </Link>
-              </div>
-            )}
+              )}
+              {user && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleLogout}
+                  className="border-slate-700 text-slate-300 hover:text-rose-400 hover:border-rose-500/50 hover:bg-rose-950/30 text-xs gap-1.5"
+                  title="Đăng xuất khỏi tài khoản"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Đăng xuất</span>
+                </Button>
+              )}
+            </div>
           </div>
 
           {/* XP & Level progress bar inside hero */}

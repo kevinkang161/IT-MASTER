@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ShieldCheck,
   Users,
@@ -20,6 +21,7 @@ import {
   Layers,
   Database,
   Lock,
+  LogOut,
 } from "lucide-react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
@@ -30,7 +32,8 @@ import { useAuth } from "@/lib/auth/auth-context";
 import { MOCK_LESSONS, MOCK_QUESTIONS, MOCK_EXAMS, MOCK_LEADERBOARD } from "@/lib/mock-data";
 
 export default function AdminDashboardPage() {
-  const { user, isAdmin } = useAuth();
+  const router = useRouter();
+  const { user, isAdmin, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<"overview" | "lessons" | "questions" | "exams" | "users">("overview");
 
   // Local state for admin lessons to allow creating/deleting in demo
@@ -126,9 +129,23 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-xs bg-slate-800/80 px-3.5 py-2 rounded-xl border border-slate-700/80 text-slate-300">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-mono">{user?.email || "admin@itmaster.edu.vn"}</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2 text-xs bg-slate-800/80 px-3.5 py-2 rounded-xl border border-slate-700/80 text-slate-300">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="font-mono">{user?.email || "admin@itmaster.edu.vn"}</span>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={async () => {
+                await logout();
+                router.push("/login");
+              }}
+              className="border-slate-700 text-slate-300 hover:text-rose-400 hover:bg-rose-950/40 text-xs gap-1.5"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Đăng xuất</span>
+            </Button>
           </div>
         </div>
 

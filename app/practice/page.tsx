@@ -20,11 +20,12 @@ import { Footer } from "@/components/layout/footer";
 import { Button } from "@/components/ui/button";
 import { CodeViewer } from "@/components/ui/code-viewer";
 import { useAuth } from "@/lib/auth/auth-context";
+import { recordQuestionPracticed } from "@/lib/progress";
 import { MOCK_QUESTIONS, MOCK_GRADES } from "@/lib/mock-data";
 import { Question, QuestionDifficulty, QuestionType } from "@/types/database";
 
 export default function PracticePage() {
-  const { addXp } = useAuth();
+  const { user, addXp } = useAuth();
 
   const [selectedGrade, setSelectedGrade] = useState<number | "all">("all");
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>("all");
@@ -88,6 +89,7 @@ export default function PracticePage() {
 
     const xp = correct ? 10 : 2;
     addXp(xp, `Luyện tập câu hỏi: ${currentQ.id}`);
+    recordQuestionPracticed(user?.id, correct);
 
     setScoreStats((prev) => ({
       answered: prev.answered + 1,
