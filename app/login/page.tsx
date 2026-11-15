@@ -1,16 +1,31 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Code2, ArrowRight, Lock, Mail, AlertCircle, CheckCircle2, ShieldCheck } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  Code2,
+  ArrowRight,
+  Lock,
+  Mail,
+  AlertCircle,
+  CheckCircle2,
+  ShieldCheck,
+  Sparkles,
+  BookmarkCheck,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useAuth } from "@/lib/auth/auth-context";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAuth();
+
+  const redirectUrl = searchParams?.get("redirect") || "/dashboard";
+  const isRequired = searchParams?.get("required") === "1";
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -29,7 +44,7 @@ export default function LoginPage() {
     setIsLoading(false);
 
     if (result.success) {
-      router.push("/dashboard");
+      router.push(redirectUrl);
     } else {
       setError(result.error || "Đăng nhập không thành công. Vui lòng kiểm tra lại email hoặc mật khẩu.");
     }
@@ -39,7 +54,7 @@ export default function LoginPage() {
     setIsLoading(true);
     await login("hocsinh.demo@itmaster.edu.vn", "demo123456");
     setIsLoading(false);
-    router.push("/dashboard");
+    router.push(redirectUrl);
   };
 
   const handleDemoAdminLogin = async () => {
@@ -65,18 +80,54 @@ export default function LoginPage() {
           </span>
         </Link>
         <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-          Đăng nhập vào tài khoản
+          Đăng nhập vào hệ thống
         </h1>
         <p className="mt-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
           Chưa có tài khoản?{" "}
-          <Link href="/register" className="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+          <Link
+            href={`/register${redirectUrl !== "/dashboard" ? `?redirect=${encodeURIComponent(redirectUrl)}` : ""}`}
+            className="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
+          >
             Đăng ký học sinh mới
           </Link>
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
+      <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md px-4">
+        {/* REQUIRE AUTH NOTICE BANNER */}
+        {isRequired && (
+          <div className="mb-4 p-3.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800/80 text-indigo-950 dark:text-indigo-200 text-xs sm:text-sm flex items-start gap-3 shadow-sm animate-in fade-in duration-300">
+            <div className="p-1.5 rounded-lg bg-indigo-600 text-white shrink-0 mt-0.5">
+              <BookmarkCheck className="w-4 h-4" />
+            </div>
+            <div className="space-y-0.5">
+              <p className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">
+                Yêu cầu đăng nhập trước khi vào học
+              </p>
+              <p className="text-slate-600 dark:text-slate-300 text-xs leading-relaxed">
+                Đăng nhập hoặc đăng ký để hệ thống lưu giữ toàn bộ kết quả bài thi, lịch sử luyện tập và điểm XP của bạn.
+              </p>
+            </div>
+          </div>
+        )}
+
         <div className="p-6 sm:p-8 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-swiss">
+          {/* TAB SWITCHER */}
+          <div className="grid grid-cols-2 p-1 mb-6 bg-slate-100 dark:bg-slate-800/80 rounded-xl text-xs font-semibold">
+            <button
+              type="button"
+              className="py-2 text-center rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm font-bold"
+            >
+              Đăng nhập
+            </button>
+            <Link
+              href={`/register${redirectUrl !== "/dashboard" ? `?redirect=${encodeURIComponent(redirectUrl)}` : ""}`}
+              className="py-2 text-center rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition"
+            >
+              Đăng ký tài khoản
+            </Link>
+          </div>
+
           {error && (
             <div className="mb-5 p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-700 dark:text-rose-300 text-xs sm:text-sm flex items-start gap-2.5">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600 dark:text-rose-400" />
@@ -132,7 +183,7 @@ export default function LoginPage() {
           {/* DEMO SHORTCUTS */}
           <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 space-y-2">
             <div className="text-[11px] text-center font-mono text-slate-400 uppercase tracking-wider mb-2">
-              Hoặc trải nghiệm nhanh:
+              Hoặc trải nghiệm nhanh (1-click):
             </div>
             <Button
               type="button"
@@ -158,5 +209,19 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0B1120] flex items-center justify-center">
+          <div className="animate-pulse text-indigo-600 font-bold">IT MASTER...</div>
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }

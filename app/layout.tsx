@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Be_Vietnam_Pro, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth/auth-context";
+import { AuthGuard } from "@/components/auth/auth-guard";
 
 const beVietnam = Be_Vietnam_Pro({
   weight: ["300", "400", "500", "600", "700", "800"],
@@ -108,7 +109,9 @@ export default function RootLayout({
         />
       </head>
       <body className={`${beVietnam.variable} ${jetbrainsMono.variable} font-sans antialiased bg-[#F8FAFC] dark:bg-[#0B1120] text-slate-900 dark:text-slate-100 min-h-screen flex flex-col`} suppressHydrationWarning>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <AuthGuard>{children}</AuthGuard>
+        </AuthProvider>
       </body>
     </html>
   );

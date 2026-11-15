@@ -1,16 +1,30 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Code2, ArrowRight, Lock, Mail, User, GraduationCap, AlertCircle } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  Code2,
+  ArrowRight,
+  Lock,
+  Mail,
+  User,
+  GraduationCap,
+  AlertCircle,
+  BookmarkCheck,
+  Sparkles,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useAuth } from "@/lib/auth/auth-context";
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { register } = useAuth();
+
+  const redirectUrl = searchParams?.get("redirect") || "/dashboard";
+
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [gradeLevel, setGradeLevel] = useState<10 | 11 | 12>(12);
@@ -45,7 +59,7 @@ export default function RegisterPage() {
     setIsLoading(false);
 
     if (result.success) {
-      router.push("/dashboard");
+      router.push(redirectUrl);
     } else {
       setError(result.error || "Đăng ký không thành công. Vui lòng thử lại.");
     }
@@ -71,14 +85,48 @@ export default function RegisterPage() {
         </h1>
         <p className="mt-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
           Đã có tài khoản?{" "}
-          <Link href="/login" className="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+          <Link
+            href={`/login${redirectUrl !== "/dashboard" ? `?redirect=${encodeURIComponent(redirectUrl)}` : ""}`}
+            className="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
+          >
             Đăng nhập ngay
           </Link>
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
+      <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md px-4">
+        {/* VALUE PROPOSITION BANNER */}
+        <div className="mb-4 p-3.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800/80 text-indigo-950 dark:text-indigo-200 text-xs sm:text-sm flex items-start gap-3 shadow-sm">
+          <div className="p-1.5 rounded-lg bg-indigo-600 text-white shrink-0 mt-0.5">
+            <Sparkles className="w-4 h-4" />
+          </div>
+          <div className="space-y-0.5">
+            <p className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">
+              Lưu trữ lịch sử & Thăng hạng học tập
+            </p>
+            <p className="text-slate-600 dark:text-slate-300 text-xs leading-relaxed">
+              Tạo tài khoản miễn phí để hệ thống tự động ghi nhận bài làm, chấm điểm chi tiết và tích lũy +100 XP khởi đầu.
+            </p>
+          </div>
+        </div>
+
         <div className="p-6 sm:p-8 bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-swiss">
+          {/* TAB SWITCHER */}
+          <div className="grid grid-cols-2 p-1 mb-6 bg-slate-100 dark:bg-slate-800/80 rounded-xl text-xs font-semibold">
+            <Link
+              href={`/login${redirectUrl !== "/dashboard" ? `?redirect=${encodeURIComponent(redirectUrl)}` : ""}`}
+              className="py-2 text-center rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition"
+            >
+              Đăng nhập
+            </Link>
+            <button
+              type="button"
+              className="py-2 text-center rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm font-bold"
+            >
+              Đăng ký tài khoản
+            </button>
+          </div>
+
           {error && (
             <div className="mb-5 p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-700 dark:text-rose-300 text-xs sm:text-sm flex items-start gap-2.5">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600 dark:text-rose-400" />
@@ -189,5 +237,19 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0B1120] flex items-center justify-center">
+          <div className="animate-pulse text-indigo-600 font-bold">IT MASTER...</div>
+        </div>
+      }
+    >
+      <RegisterForm />
+    </Suspense>
   );
 }
