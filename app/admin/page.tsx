@@ -132,7 +132,7 @@ export default function AdminDashboardPage() {
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex items-center gap-2 text-xs bg-slate-800/80 px-3.5 py-2 rounded-xl border border-slate-700/80 text-slate-300">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="font-mono">{user?.email || "admin@itmaster.edu.vn"}</span>
+              <span className="font-mono">{user?.email || "thaidoanhoangbh@gmail.com"}</span>
             </div>
             <Button
               size="sm"

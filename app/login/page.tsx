@@ -10,7 +10,6 @@ import {
   Mail,
   AlertCircle,
   CheckCircle2,
-  ShieldCheck,
   Sparkles,
   BookmarkCheck,
 } from "lucide-react";
@@ -55,13 +54,6 @@ function LoginForm() {
     await login("hocsinh.demo@itmaster.edu.vn", "demo123456");
     setIsLoading(false);
     router.push(redirectUrl);
-  };
-
-  const handleDemoAdminLogin = async () => {
-    setIsLoading(true);
-    await login("admin@itmaster.edu.vn", "admin123456");
-    setIsLoading(false);
-    router.push("/admin");
   };
 
   return (
@@ -194,16 +186,6 @@ function LoginForm() {
             >
               <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mr-2" />
               Đăng nhập tài khoản Học sinh Mẫu
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full text-xs font-semibold border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
-              onClick={handleDemoAdminLogin}
-              disabled={isLoading}
-            >
-              <ShieldCheck className="w-4 h-4 text-indigo-600 dark:text-indigo-400 mr-2" />
-              Đăng nhập tài khoản Quản trị viên Mẫu
             </Button>
           </div>
         </div>

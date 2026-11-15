@@ -5,10 +5,9 @@ import { Profile, UserRole } from "@/types/database";
 import { MOCK_PROFILE } from "@/lib/mock-data";
 import { createClient } from "@/lib/supabase/client";
 
-// List of verified System Administrator emails
+// List of verified System Administrator emails (strictly protected)
 export const ADMIN_EMAILS = [
   "thaidoanhoangbh@gmail.com",
-  "admin@itmaster.edu.vn",
 ];
 
 interface AuthContextType {
@@ -149,24 +148,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { success: true };
       }
 
-      // 2. Demo Admin account shortcut
-      if (cleanEmail === "admin@itmaster.edu.vn" && (!password || password === "admin123456")) {
-        const adminDemo: Profile = {
-          ...MOCK_PROFILE,
-          id: "usr-admin-demo",
-          email: "admin@itmaster.edu.vn",
-          full_name: "Quản trị viên IT MASTER",
-          role: "admin",
-        };
-        setUser(adminDemo);
-        if (typeof window !== "undefined") {
-          sessionStorage.setItem("it_master_demo_active", "true");
-        }
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(adminDemo));
-        setIsLoading(false);
-        return { success: true };
-      }
-
+      // 2. Clear any lingering demo session
       if (typeof window !== "undefined") {
         sessionStorage.removeItem("it_master_demo_active");
       }

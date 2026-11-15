@@ -3,7 +3,6 @@ import { createClient } from "@supabase/supabase-js";
 
 const ADMIN_EMAILS = [
   "thaidoanhoangbh@gmail.com",
-  "admin@itmaster.edu.vn",
 ];
 
 export async function POST(request: NextRequest) {
@@ -26,7 +25,16 @@ export async function POST(request: NextRequest) {
     }
 
     const cleanEmail = email.trim().toLowerCase();
-    const role = ADMIN_EMAILS.includes(cleanEmail) ? "admin" : "student";
+
+    // Security: Reject registration for system admin emails via public form
+    if (ADMIN_EMAILS.includes(cleanEmail)) {
+      return NextResponse.json(
+        { error: "Email quản trị viên bảo mật, không được phép đăng ký qua cổng học sinh." },
+        { status: 403 }
+      );
+    }
+
+    const role = "student";
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
