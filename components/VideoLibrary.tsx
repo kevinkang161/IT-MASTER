@@ -8,28 +8,32 @@ import {
   X,
   ExternalLink,
   Film,
-  Sparkles,
-  Layers,
-  GraduationCap,
   Youtube,
-  BookOpen,
-  Filter,
+  Clock,
+  CheckCircle2,
+  RotateCcw,
+  AlertCircle,
+  Lightbulb,
+  Check,
+  ChevronRight,
+  ListOrdered,
+  BookCheck,
+  Layers,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import videosData from "@/lib/videos.json";
+import { VideoItem, VideoChapter, VideoExercise } from "@/types/video";
 
-export interface VideoItem {
-  grade: string;
-  track: string;
-  title: string;
-  url: string;
-}
+export type { VideoItem, VideoChapter, VideoExercise };
 
 // Extract YouTube Video ID from standard watch or share URLs
 function getYouTubeId(url: string): string {
   const match = url.match(/(?:v=|youtu\.be\/|embed\/)([\w-]+)/);
   return match ? match[1] : "";
 }
+
+const STORAGE_COMPLETED_KEY = "it_master_completed_videos";
 
 interface VideoLibraryProps {
   title?: string;
@@ -47,15 +51,43 @@ export function VideoLibrary({
   const [selectedGrade, setSelectedGrade] = useState<string>("all");
   const [selectedTrack, setSelectedTrack] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  
+  // Active Video Modal State
   const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
+  const [currentSeconds, setCurrentSeconds] = useState<number>(0);
+  const [activeChapterIndex, setActiveChapterIndex] = useState<number>(0);
+
+  // Exercise State for Active Video
+  const [userAnswers, setUserAnswers] = useState<{ [qIdx: number]: number }>({});
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  const [exerciseError, setExerciseError] = useState<string>("");
+
+  // Completed Videos Tracking (Persisted in localStorage)
+  const [completedVideos, setCompletedVideos] = useState<string[]>([]);
 
   const videos: VideoItem[] = videosData as VideoItem[];
 
-  // Counts for tabs
-  const countAll = videos.length;
-  const count10 = videos.filter((v) => v.grade === "10").length;
-  const count11 = videos.filter((v) => v.grade === "11").length;
-  const count12 = videos.filter((v) => v.grade === "12").length;
+  // Load completed videos from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_COMPLETED_KEY);
+      if (saved) {
+        setCompletedVideos(JSON.parse(saved));
+      }
+    } catch (_) {
+      // Ignore storage read error
+    }
+  }, []);
+
+  // When opening a video, reset player & exercise states
+  const handleOpenVideo = (video: VideoItem) => {
+    setActiveVideo(video);
+    setCurrentSeconds(0);
+    setActiveChapterIndex(0);
+    setUserAnswers({});
+    setIsSubmitted(false);
+    setExerciseError("");
+  };
 
   // Keyboard accessibility: Close modal on Escape
   useEffect(() => {
@@ -74,6 +106,12 @@ export function VideoLibrary({
     };
   }, [activeVideo]);
 
+  // Tab counts
+  const countAll = videos.length;
+  const count10 = videos.filter((v) => v.grade === "10").length;
+  const count11 = videos.filter((v) => v.grade === "11").length;
+  const count12 = videos.filter((v) => v.grade === "12").length;
+
   const filteredVideos = useMemo(() => {
     let result = videos.filter((video) => {
       const matchGrade = selectedGrade === "all" || video.grade === selectedGrade;
@@ -91,6 +129,66 @@ export function VideoLibrary({
 
     return result;
   }, [videos, selectedGrade, selectedTrack, searchQuery, limit]);
+
+  // Handle chapter click to seek video
+  const handleSeekChapter = (chapter: VideoChapter, idx: number) => {
+    setCurrentSeconds(chapter.seconds);
+    setActiveChapterIndex(idx);
+  };
+
+  // Handle exercise option select
+  const handleSelectOption = (qIdx: number, optIdx: number) => {
+    if (isSubmitted) return; // Prevent changing after submit
+    setUserAnswers((prev) => ({ ...prev, [qIdx]: optIdx }));
+    setExerciseError("");
+  };
+
+  // Check exercise results
+  const handleSubmitExercise = () => {
+    if (!activeVideo || !activeVideo.exercises) return;
+    const totalQ = activeVideo.exercises.length;
+    const answeredCount = Object.keys(userAnswers).length;
+
+    if (answeredCount < totalQ) {
+      setExerciseError(`Vui lòng hoàn thành đủ ${totalQ} câu hỏi trước khi kiểm tra!`);
+      return;
+    }
+
+    setIsSubmitted(true);
+    setExerciseError("");
+
+    // Calculate score
+    let correctCount = 0;
+    activeVideo.exercises.forEach((ex, idx) => {
+      if (userAnswers[idx] === ex.correctIndex) {
+        correctCount++;
+      }
+    });
+
+    // Mark as completed in localStorage if score >= 2 or all completed
+    if (!completedVideos.includes(activeVideo.id)) {
+      const updated = [...completedVideos, activeVideo.id];
+      setCompletedVideos(updated);
+      try {
+        localStorage.setItem(STORAGE_COMPLETED_KEY, JSON.stringify(updated));
+      } catch (_) {}
+    }
+  };
+
+  // Reset exercise
+  const handleResetExercise = () => {
+    setUserAnswers({});
+    setIsSubmitted(false);
+    setExerciseError("");
+  };
+
+  // Calculate score for active modal
+  const exerciseScore = useMemo(() => {
+    if (!activeVideo || !activeVideo.exercises || !isSubmitted) return 0;
+    return activeVideo.exercises.reduce((acc, ex, idx) => {
+      return acc + (userAnswers[idx] === ex.correctIndex ? 1 : 0);
+    }, 0);
+  }, [activeVideo, isSubmitted, userAnswers]);
 
   return (
     <section className="w-full font-sans">
@@ -117,9 +215,9 @@ export function VideoLibrary({
             </div>
           </div>
 
-          {/* FILTER CONTROLS (Clean Academic & Swiss Grid) */}
+          {/* FILTER CONTROLS */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pt-1">
-            {/* Grade Filter Tabs */}
+            {/* Grade Tabs */}
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
               {[
                 { id: "all", label: "Tất cả", count: countAll },
@@ -155,7 +253,6 @@ export function VideoLibrary({
 
             {/* Track Selector & Search Input */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-              {/* Optional Track Filter */}
               <div className="flex items-center gap-1 text-xs overflow-x-auto">
                 {[
                   { id: "all", label: "Mọi định hướng" },
@@ -205,18 +302,26 @@ export function VideoLibrary({
       {/* VIDEO GRID (1 col mobile, 2-3 col desktop) */}
       {filteredVideos.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredVideos.map((video, idx) => {
+          {filteredVideos.map((video) => {
             const videoId = getYouTubeId(video.url);
             const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+            const isCompleted = completedVideos.includes(video.id);
 
             const isCS = video.track.includes("Khoa học máy tính");
             const isICT = video.track.includes("Tin học ứng dụng");
 
+            const chapterCount = video.chapters?.length || 4;
+            const exerciseCount = video.exercises?.length || 3;
+
             return (
               <div
-                key={`${video.url}-${idx}`}
-                onClick={() => setActiveVideo(video)}
-                className="group flex flex-col justify-between bg-white dark:bg-[#0f172a] border border-slate-200/90 dark:border-slate-800/90 rounded-2xl overflow-hidden shadow-xs hover:shadow-xl hover:border-indigo-400/80 dark:hover:border-indigo-500/80 transition-all duration-300 hover:-translate-y-1.5 cursor-pointer"
+                key={video.id}
+                onClick={() => handleOpenVideo(video)}
+                className={`group flex flex-col justify-between bg-white dark:bg-[#0f172a] border rounded-2xl overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 cursor-pointer ${
+                  isCompleted
+                    ? "border-emerald-500/60 dark:border-emerald-500/40 ring-1 ring-emerald-500/20"
+                    : "border-slate-200/90 dark:border-slate-800/90 hover:border-indigo-400/80 dark:hover:border-indigo-500/80"
+                }`}
               >
                 {/* 16:9 THUMBNAIL WITH PLAY BUTTON */}
                 <div className="relative aspect-video w-full bg-slate-950 overflow-hidden">
@@ -227,8 +332,8 @@ export function VideoLibrary({
                     className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
                   />
 
-                  {/* Gradient shadow overlay for high text contrast */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/30" />
+                  {/* Gradient shadow overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/30" />
 
                   {/* Centered Play Button */}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -255,10 +360,24 @@ export function VideoLibrary({
                     </span>
                   </div>
 
-                  {/* YouTube Tag bottom-right */}
-                  <div className="absolute bottom-2.5 right-3 flex items-center gap-1 text-[11px] font-mono text-white/95 bg-black/70 px-2 py-0.5 rounded-md border border-white/10 backdrop-blur-xs">
-                    <Youtube className="w-3.5 h-3.5 text-red-500 fill-current" />
-                    <span>Bài giảng</span>
+                  {/* Top-Right: Completed Status Badge */}
+                  {isCompleted && (
+                    <div className="absolute top-3 right-3 flex items-center gap-1 text-[11px] font-mono font-bold text-white bg-emerald-600 px-2.5 py-0.5 rounded-md shadow-md z-10">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Đã hoàn thành</span>
+                    </div>
+                  )}
+
+                  {/* Bottom Stats */}
+                  <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-[11px] font-mono text-white/95">
+                    <span className="bg-black/70 px-2 py-0.5 rounded-md border border-white/10 backdrop-blur-xs flex items-center gap-1">
+                      <Clock className="w-3 h-3 text-indigo-400" />
+                      <span>{chapterCount} mốc timeline</span>
+                    </span>
+                    <span className="bg-black/70 px-2 py-0.5 rounded-md border border-white/10 backdrop-blur-xs flex items-center gap-1">
+                      <BookCheck className="w-3 h-3 text-emerald-400" />
+                      <span>{exerciseCount} câu trắc nghiệm</span>
+                    </span>
                   </div>
                 </div>
 
@@ -273,10 +392,10 @@ export function VideoLibrary({
                   <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                     <span className="flex items-center gap-1.5 font-mono">
                       <Film className="w-3.5 h-3.5 text-indigo-500" />
-                      <span>Video ôn thi</span>
+                      <span>Học 2 cột (Split-View)</span>
                     </span>
                     <span className="text-indigo-600 dark:text-indigo-400 font-bold group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
-                      <span>Phát video</span>
+                      <span>Vào học ngay</span>
                       <Play className="w-3 h-3 fill-current" />
                     </span>
                   </div>
@@ -309,21 +428,21 @@ export function VideoLibrary({
         </div>
       )}
 
-      {/* YOUTUBE IFRAME MODAL (16:9 Aspect Ratio) */}
+      {/* 2-COLUMN SPLIT-VIEW LEARNING MODAL */}
       {activeVideo && (
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 lg:p-6 animate-in fade-in duration-200"
           onClick={() => setActiveVideo(null)}
         >
           <div
-            className="w-full max-w-4xl bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col"
+            className="w-full max-w-7xl h-[94vh] max-h-[900px] bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* MODAL HEADER */}
-            <div className="px-4 py-3 sm:px-6 sm:py-3.5 border-b border-slate-800 flex items-center justify-between gap-3 bg-slate-900/90">
-              <div className="flex items-center gap-2 min-w-0">
+            {/* TOP MODAL BAR */}
+            <div className="px-4 py-3 sm:px-6 sm:py-3.5 border-b border-slate-800 flex items-center justify-between gap-3 bg-slate-900/95 shrink-0">
+              <div className="flex items-center gap-2.5 min-w-0">
                 <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800 shrink-0">
                   Lớp {activeVideo.grade} • {activeVideo.track}
                 </span>
@@ -333,6 +452,12 @@ export function VideoLibrary({
               </div>
 
               <div className="flex items-center gap-2 shrink-0">
+                {completedVideos.includes(activeVideo.id) && (
+                  <span className="hidden sm:inline-flex items-center gap-1 text-xs font-mono font-bold text-emerald-400 bg-emerald-950/80 border border-emerald-800 px-2.5 py-1 rounded-md">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Đã hoàn thành</span>
+                  </span>
+                )}
                 <a
                   href={activeVideo.url}
                   target="_blank"
@@ -340,43 +465,272 @@ export function VideoLibrary({
                   className="text-xs font-mono text-slate-400 hover:text-white flex items-center gap-1 px-2.5 py-1 rounded hover:bg-slate-800 transition"
                   title="Mở trên trang YouTube"
                 >
-                  <span className="hidden sm:inline">Mở trên YouTube</span>
+                  <span className="hidden md:inline">Mở trên YouTube</span>
                   <ExternalLink className="w-3.5 h-3.5" />
                 </a>
                 <button
                   type="button"
                   onClick={() => setActiveVideo(null)}
                   className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
-                  title="Đóng video (Esc)"
+                  title="Đóng phòng học (Esc)"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
             </div>
 
-            {/* 16:9 IFRAME PLAYER */}
-            <div className="relative aspect-video w-full bg-black">
-              <iframe
-                src={`https://www.youtube.com/embed/${getYouTubeId(activeVideo.url)}?autoplay=1&rel=0`}
-                title={activeVideo.title}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-                className="w-full h-full border-0"
-              />
-            </div>
+            {/* SPLIT-VIEW CONTAINER (Desktop: 2 columns; Mobile: Stacked) */}
+            <div className="flex-1 flex flex-col lg:flex-row overflow-hidden min-h-0">
+              {/* LEFT COLUMN: VIDEO PLAYER (60% width) + TIMELINE */}
+              <div className="w-full lg:w-[58%] xl:w-[60%] flex flex-col bg-black overflow-y-auto lg:overflow-hidden border-b lg:border-b-0 lg:border-r border-slate-800">
+                {/* 16:9 Aspect Video Player */}
+                <div className="relative aspect-video w-full bg-black shrink-0 shadow-lg">
+                  <iframe
+                    key={`${activeVideo.id}-${currentSeconds}`}
+                    src={`https://www.youtube.com/embed/${getYouTubeId(activeVideo.url)}?start=${currentSeconds}&autoplay=1&rel=0`}
+                    title={activeVideo.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="w-full h-full border-0"
+                  />
+                </div>
 
-            {/* MODAL FOOTER */}
-            <div className="px-4 py-3 sm:px-6 bg-slate-900/80 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
-              <span className="font-mono">
-                Chương trình SGK Kết nối tri thức 10, 11, 12 • Nền tảng IT MASTER
-              </span>
-              <button
-                type="button"
-                onClick={() => setActiveVideo(null)}
-                className="font-semibold text-slate-300 hover:text-white cursor-pointer"
-              >
-                Đóng trình phát [Esc]
-              </button>
+                {/* TIMELINE NỘI DUNG BÀI HỌC */}
+                <div className="flex-1 flex flex-col p-4 sm:p-5 bg-slate-950 overflow-y-auto">
+                  <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-indigo-400" />
+                      <h4 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider font-mono">
+                        Timeline nội dung bài học
+                      </h4>
+                    </div>
+                    <span className="text-[11px] text-slate-400 font-mono hidden sm:inline">
+                      Bấm vào mốc để tua nhanh video
+                    </span>
+                  </div>
+
+                  <div className="space-y-2">
+                    {activeVideo.chapters && activeVideo.chapters.length > 0 ? (
+                      activeVideo.chapters.map((chap, idx) => {
+                        const isCurrent = activeChapterIndex === idx;
+                        return (
+                          <button
+                            key={`${chap.time}-${idx}`}
+                            onClick={() => handleSeekChapter(chap, idx)}
+                            className={`w-full flex items-center justify-between p-2.5 sm:p-3 rounded-xl text-left transition cursor-pointer border ${
+                              isCurrent
+                                ? "bg-indigo-950/80 border-indigo-500/80 text-white shadow-sm ring-1 ring-indigo-500/30"
+                                : "bg-slate-900/60 hover:bg-slate-900 border-slate-800/90 text-slate-300 hover:text-white"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <span
+                                className={`font-mono text-xs font-bold px-2.5 py-1 rounded-md shrink-0 tabular-nums border ${
+                                  isCurrent
+                                    ? "bg-indigo-600 text-white border-indigo-400"
+                                    : "bg-slate-800 text-indigo-300 border-slate-700"
+                                }`}
+                              >
+                                {chap.time}
+                              </span>
+                              <span className="text-xs sm:text-sm font-medium truncate">
+                                {chap.title}
+                              </span>
+                            </div>
+
+                            <div className="shrink-0 pl-2">
+                              {isCurrent ? (
+                                <span className="inline-flex items-center gap-1 text-[11px] font-mono text-indigo-400 font-bold">
+                                  <Play className="w-3 h-3 fill-current" />
+                                  <span className="hidden sm:inline">Đang phát</span>
+                                </span>
+                              ) : (
+                                <Play className="w-3.5 h-3.5 text-slate-500 group-hover:text-slate-300" />
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })
+                    ) : (
+                      <p className="text-xs text-slate-500 italic">Chưa có danh sách mốc thời gian.</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* RIGHT COLUMN: BÀI TẬP THỰC HÀNH NHANH (40% width) */}
+              <div className="w-full lg:w-[42%] xl:w-[40%] flex flex-col bg-[#0B1120] overflow-hidden min-h-0">
+                {/* PRACTICE HEADER */}
+                <div className="px-4 py-3 sm:px-5 sm:py-3.5 border-b border-slate-800 bg-slate-900/80 flex items-center justify-between shrink-0">
+                  <div className="flex items-center gap-2">
+                    <BookCheck className="w-4 h-4 text-emerald-400" />
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-bold text-white tracking-wide">
+                        Bài tập thực hành nhanh
+                      </h4>
+                      <p className="text-[11px] text-slate-400">
+                        Kiểm tra kiến thức trực tiếp sau bài giảng
+                      </p>
+                    </div>
+                  </div>
+
+                  {isSubmitted && (
+                    <div
+                      className={`px-3 py-1 rounded-lg text-xs font-mono font-bold border ${
+                        exerciseScore >= 2
+                          ? "bg-emerald-950 text-emerald-300 border-emerald-700"
+                          : "bg-amber-950 text-amber-300 border-amber-700"
+                      }`}
+                    >
+                      Đúng {exerciseScore}/{(activeVideo.exercises || []).length} ({Math.round((exerciseScore / ((activeVideo.exercises || []).length || 1)) * 100)}%)
+                    </div>
+                  )}
+                </div>
+
+                {/* SCROLLABLE QUESTIONS CONTAINER */}
+                <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-6">
+                  {exerciseError && (
+                    <div className="p-3 rounded-xl bg-rose-950/60 border border-rose-800 text-rose-200 text-xs flex items-center gap-2 animate-in fade-in">
+                      <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+                      <span>{exerciseError}</span>
+                    </div>
+                  )}
+
+                  {activeVideo.exercises && activeVideo.exercises.length > 0 ? (
+                    activeVideo.exercises.map((ex, qIdx) => {
+                      const selectedOpt = userAnswers[qIdx];
+                      const isCorrect = isSubmitted && selectedOpt === ex.correctIndex;
+                      const isWrong = isSubmitted && selectedOpt !== undefined && selectedOpt !== ex.correctIndex;
+
+                      return (
+                        <div
+                          key={`q-${qIdx}`}
+                          className={`p-4 rounded-2xl border transition-all ${
+                            isSubmitted
+                              ? isCorrect
+                                ? "bg-emerald-950/20 border-emerald-800/80"
+                                : "bg-rose-950/20 border-rose-800/80"
+                              : "bg-slate-900/70 border-slate-800"
+                          }`}
+                        >
+                          {/* Question Title & Number Badge */}
+                          <div className="flex items-start gap-2.5 mb-3">
+                            <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-indigo-950 text-indigo-300 border border-indigo-800 shrink-0">
+                              Câu {qIdx + 1}
+                            </span>
+                            <p className="text-xs sm:text-sm font-semibold text-slate-100 leading-snug">
+                              {ex.question}
+                            </p>
+                          </div>
+
+                          {/* Options List */}
+                          <div className="space-y-2 mt-3">
+                            {ex.options.map((opt, optIdx) => {
+                              const isThisSelected = selectedOpt === optIdx;
+                              const isThisCorrect = isSubmitted && optIdx === ex.correctIndex;
+                              const isThisWrongSelection = isSubmitted && isThisSelected && optIdx !== ex.correctIndex;
+
+                              let optionStyle = "bg-slate-950/80 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-900";
+
+                              if (!isSubmitted && isThisSelected) {
+                                optionStyle = "bg-indigo-950/90 border-indigo-500 text-white shadow-xs ring-1 ring-indigo-500/30";
+                              } else if (isSubmitted) {
+                                if (isThisCorrect) {
+                                  optionStyle = "bg-emerald-950/90 border-emerald-500 text-emerald-200 font-semibold shadow-xs ring-1 ring-emerald-500/40";
+                                } else if (isThisWrongSelection) {
+                                  optionStyle = "bg-rose-950/90 border-rose-500 text-rose-200 shadow-xs ring-1 ring-rose-500/40";
+                                } else {
+                                  optionStyle = "bg-slate-950/40 border-slate-800/50 text-slate-500 opacity-60";
+                                }
+                              }
+
+                              return (
+                                <button
+                                  key={`opt-${optIdx}`}
+                                  type="button"
+                                  disabled={isSubmitted}
+                                  onClick={() => handleSelectOption(qIdx, optIdx)}
+                                  className={`w-full flex items-start gap-3 p-2.5 sm:p-3 rounded-xl border text-left text-xs transition cursor-pointer ${optionStyle}`}
+                                >
+                                  <div
+                                    className={`w-5 h-5 rounded-full border flex items-center justify-center font-mono font-bold text-[11px] shrink-0 mt-0.5 ${
+                                      isSubmitted && isThisCorrect
+                                        ? "bg-emerald-600 text-white border-emerald-500"
+                                        : isSubmitted && isThisWrongSelection
+                                        ? "bg-rose-600 text-white border-rose-500"
+                                        : isThisSelected
+                                        ? "bg-indigo-600 text-white border-indigo-500"
+                                        : "bg-slate-800 text-slate-400 border-slate-700"
+                                    }`}
+                                  >
+                                    {isSubmitted && isThisCorrect ? (
+                                      <Check className="w-3 h-3 stroke-[3]" />
+                                    ) : isSubmitted && isThisWrongSelection ? (
+                                      <X className="w-3 h-3 stroke-[3]" />
+                                    ) : (
+                                      String.fromCharCode(65 + optIdx)
+                                    )}
+                                  </div>
+                                  <span className="flex-1 leading-relaxed">{opt}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          {/* Explanation Box on Submit */}
+                          {isSubmitted && (
+                            <div className="mt-3 p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 space-y-1 animate-in fade-in">
+                              <div className="flex items-center gap-1.5 font-bold text-amber-400">
+                                <Lightbulb className="w-3.5 h-3.5 shrink-0" />
+                                <span>Giải thích đáp án:</span>
+                              </div>
+                              <p className="text-slate-400 leading-relaxed pl-5">
+                                {ex.explanation}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p className="text-xs text-slate-500 italic">Chưa có bài tập cho video này.</p>
+                  )}
+                </div>
+
+                {/* PRACTICE FOOTER BUTTONS */}
+                <div className="p-4 border-t border-slate-800 bg-slate-900/90 shrink-0 flex flex-col gap-2">
+                  {!isSubmitted ? (
+                    <Button
+                      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 text-xs sm:text-sm cursor-pointer shadow-md"
+                      onClick={handleSubmitExercise}
+                    >
+                      <BookCheck className="w-4 h-4 mr-2" />
+                      <span>Kiểm tra kết quả trắc nghiệm</span>
+                    </Button>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        className="flex-1 border-slate-700 text-slate-200 hover:bg-slate-800 text-xs font-semibold cursor-pointer"
+                        onClick={handleResetExercise}
+                      >
+                        <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+                        <span>Làm lại bài tập</span>
+                      </Button>
+                      <Button
+                        className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold cursor-pointer"
+                        onClick={() => setActiveVideo(null)}
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
+                        <span>Hoàn thành & Đóng</span>
+                      </Button>
+                    </div>
+                  )}
+                  <p className="text-[11px] text-center text-slate-500 font-mono">
+                    Kết quả làm bài sẽ tự động lưu vào trạng thái &ldquo;Đã hoàn thành&rdquo; của video.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -1,9 +1,338 @@
 [
-  { "grade": "10", "track": "Chung", "title": "Bài 16: Ngôn ngữ lập trình bậc cao và Python", "url": "https://www.youtube.com/watch?v=WAFMOxkTLqU" },
-  { "grade": "10", "track": "Chung", "title": "Học Python - Ôn tập Tin học 10 cuối kỳ 2", "url": "https://www.youtube.com/watch?v=EhgXM_YWpok" },
-  { "grade": "11", "track": "Khoa học máy tính", "title": "Bài 20: Thực hành bài toán tìm kiếm", "url": "https://www.youtube.com/watch?v=JGxnEgX9Uec" },
-  { "grade": "11", "track": "Tin học ứng dụng", "title": "Bài 20: Thực hành tạo lập các bảng có khóa ngoài", "url": "https://www.youtube.com/watch?v=06uU4WK87z0" },
-  { "grade": "12", "track": "Chung", "title": "Bài 17: Các mức ưu tiên của bộ chọn (CSS)", "url": "https://www.youtube.com/watch?v=pE5krdeyg_U" },
-  { "grade": "12", "track": "Khoa học máy tính", "title": "Bài 29: Mô phỏng trong giải quyết vấn đề", "url": "https://www.youtube.com/watch?v=Fs1GecPiQ2c" },
-  { "grade": "12", "track": "Tin học ứng dụng", "title": "Bài 23: Chuẩn bị xây dựng trang web", "url": "https://www.youtube.com/watch?v=grNdxntaLEA" }
+  {
+    "id": "vid-10-01",
+    "grade": "10",
+    "track": "Chung",
+    "title": "Bài 16: Ngôn ngữ lập trình bậc cao và Python",
+    "url": "https://www.youtube.com/watch?v=WAFMOxkTLqU",
+    "chapters": [
+      { "time": "00:00", "seconds": 0, "title": "1. Khái niệm ngôn ngữ lập trình bậc cao & Python" },
+      { "time": "03:15", "seconds": 195, "title": "2. Môi trường IDLE và chế độ tương tác Shell" },
+      { "time": "07:45", "seconds": 465, "title": "3. Các phép toán số học & Hàm print(), type()" },
+      { "time": "12:10", "seconds": 730, "title": "4. Tổng kết cú pháp và bài tập thực hành" }
+    ],
+    "exercises": [
+      {
+        "question": "Trong các phát biểu sau về ngôn ngữ lập trình bậc cao, phát biểu nào là ĐÚNG?",
+        "options": [
+          "Máy tính có thể trực tiếp thực thi mã bậc cao mà không cần trình dịch.",
+          "Ngôn ngữ bậc cao có cú pháp gần gũi với ngôn ngữ tự nhiên và độc lập với phần cứng máy tính.",
+          "Python là ngôn ngữ chỉ hoạt động ở chế độ biên dịch, không có thông dịch tương tác.",
+          "Ngôn ngữ bậc cao khó học và khó sửa lỗi hơn ngôn ngữ máy."
+        ],
+        "correctIndex": 1,
+        "explanation": "Ngôn ngữ bậc cao sử dụng cú pháp gần gũi với tiếng Anh và ký hiệu toán học, độc lập với phần cứng, giúp người học dễ đọc hiểu và phát triển phần mềm."
+      },
+      {
+        "question": "Trong Python, kết quả xuất ra màn hình của câu lệnh `print(17 // 3, 17 % 3)` là:",
+        "options": [
+          "5 2",
+          "5.666 2",
+          "5 5",
+          "2 5"
+        ],
+        "correctIndex": 0,
+        "explanation": "Toán tử `//` là phép chia lấy phần nguyên (17 // 3 = 5), toán tử `%` là phép chia lấy phần dư (17 % 3 = 2)."
+      },
+      {
+        "question": "Môi trường soạn thảo và thực thi tích hợp chuẩn đi kèm khi cài đặt Python có tên là gì?",
+        "options": [
+          "PyCharm Community",
+          "Visual Studio Code",
+          "Python IDLE",
+          "Jupyter Notebook"
+        ],
+        "correctIndex": 2,
+        "explanation": "IDLE (Integrated Development and Learning Environment) là môi trường phát triển tích hợp mặc định đi kèm với bộ cài đặt Python chuẩn."
+      }
+    ]
+  },
+  {
+    "id": "vid-10-02",
+    "grade": "10",
+    "track": "Chung",
+    "title": "Học Python - Ôn tập Tin học 10 cuối kỳ 2",
+    "url": "https://www.youtube.com/watch?v=EhgXM_YWpok",
+    "chapters": [
+      { "time": "00:00", "seconds": 0, "title": "1. Ôn tập cấu trúc rẽ nhánh (if - elif - else)" },
+      { "time": "04:30", "seconds": 270, "title": "2. Cấu trúc lặp for và while trong Python" },
+      { "time": "09:50", "seconds": 590, "title": "3. Kiểu dữ liệu xâu ký tự (str) & danh sách (list)" },
+      { "time": "15:20", "seconds": 920, "title": "4. Chữa đề thi mẫu & Kỹ thuật bẫy lỗi thường gặp" }
+    ],
+    "exercises": [
+      {
+        "question": "Cho đoạn mã Python sau:\ns = 0\nfor i in range(1, 6):\n    s += i\nprint(s)\nKết quả in ra màn hình là bao nhiêu?",
+        "options": [
+          "10",
+          "15",
+          "21",
+          "5"
+        ],
+        "correctIndex": 1,
+        "explanation": "Hàm `range(1, 6)` sinh dãy số nguyên 1, 2, 3, 4, 5. Tổng `s = 1 + 2 + 3 + 4 + 5 = 15`."
+      },
+      {
+        "question": "Để thêm phần tử `99` vào cuối danh sách `a = [10, 20, 30]`, câu lệnh Python nào là CHÍNH XÁC?",
+        "options": [
+          "a.add(99)",
+          "a.push(99)",
+          "a.append(99)",
+          "a.insertEnd(99)"
+        ],
+        "correctIndex": 2,
+        "explanation": "Phương thức `append()` của kiểu danh sách (list) trong Python dùng để chèn thêm một phần tử vào vị trí cuối cùng."
+      },
+      {
+        "question": "Cho xâu ký tự `st = 'TinHoc10'`. Biểu thức cắt xâu `st[3:6]` trả về kết quả là:",
+        "options": [
+          "'Hoc'",
+          "'Hoc1'",
+          "'inH'",
+          "'TinH'"
+        ],
+        "correctIndex": 0,
+        "explanation": "Chỉ số trong Python bắt đầu từ 0: `st[3]` là 'H', `st[4]` là 'o', `st[5]` là 'c' (cận trên 6 không lấy), kết quả là 'Hoc'."
+      }
+    ]
+  },
+  {
+    "id": "vid-11-cs-01",
+    "grade": "11",
+    "track": "Khoa học máy tính",
+    "title": "Bài 20: Thực hành bài toán tìm kiếm",
+    "url": "https://www.youtube.com/watch?v=JGxnEgX9Uec",
+    "chapters": [
+      { "time": "00:00", "seconds": 0, "title": "1. Đặt bài toán tìm kiếm & Tìm kiếm tuần tự (Linear Search)" },
+      { "time": "03:40", "seconds": 220, "title": "2. Nguyên lý thuật toán tìm kiếm nhị phân (Binary Search)" },
+      { "time": "08:15", "seconds": 495, "title": "3. Cài đặt thuật toán tìm kiếm nhị phân bằng Python" },
+      { "time": "13:00", "seconds": 780, "title": "4. So sánh độ phức tạp thời gian O(log n) và O(n)" }
+    ],
+    "exercises": [
+      {
+        "question": "Điều kiện tiên quyết để có thể áp dụng thuật toán tìm kiếm nhị phân (Binary Search) trên dãy là:",
+        "options": [
+          "Dãy số phải có số lượng phần tử là số chẵn.",
+          "Dãy phần tử đã được sắp xếp theo thứ tự không giảm hoặc không tăng.",
+          "Dãy số chỉ gồm các số nguyên dương phân biệt.",
+          "Dãy phần tử phải có kiểu dữ liệu là số thực."
+        ],
+        "correctIndex": 1,
+        "explanation": "Tìm kiếm nhị phân chia đôi không gian tìm kiếm ở mỗi bước dựa trên quy luật sắp xếp thứ tự của dãy."
+      },
+      {
+        "question": "Trong trường hợp xấu nhất, số lần so sánh của thuật toán tìm kiếm nhị phân trên dãy n phần tử có độ phức tạp là:",
+        "options": [
+          "O(n)",
+          "O(n^2)",
+          "O(log2 n)",
+          "O(1)"
+        ],
+        "correctIndex": 2,
+        "explanation": "Sau mỗi bước so sánh kích thước phạm vi tìm kiếm giảm một nửa, do đó số bước thực hiện trong trường hợp xấu nhất là xấp xỉ log2(n)."
+      },
+      {
+        "question": "Trong tìm kiếm nhị phân trên dãy tăng dần, nếu giá trị cần tìm `x` lớn hơn giá trị ở giữa `a[mid]`, ta cần cập nhật:",
+        "options": [
+          "Dừng thuật toán và báo tìm thấy.",
+          "Thu hẹp phạm vi sang nửa bên trái: `right = mid - 1`",
+          "Thu hẹp phạm vi sang nửa bên phải: `left = mid + 1`",
+          "Đổi chỗ `a[mid]` với phần tử đầu tiên."
+        ],
+        "correctIndex": 2,
+        "explanation": "Vì dãy tăng dần và `x > a[mid]`, nên `x` chỉ có thể xuất hiện ở nửa bên phải từ vị trí `mid + 1` đến `right`, do đó gán `left = mid + 1`."
+      }
+    ]
+  },
+  {
+    "id": "vid-11-ict-01",
+    "grade": "11",
+    "track": "Tin học ứng dụng",
+    "title": "Bài 20: Thực hành tạo lập các bảng có khóa ngoài",
+    "url": "https://www.youtube.com/watch?v=06uU4WK87z0",
+    "chapters": [
+      { "time": "00:00", "seconds": 0, "title": "1. Khái niệm Khóa ngoài (FOREIGN KEY) & Toàn vẹn tham chiếu" },
+      { "time": "04:10", "seconds": 250, "title": "2. Cú pháp khai báo khóa ngoài trong câu lệnh CREATE TABLE" },
+      { "time": "09:00", "seconds": 540, "title": "3. Thực hành liên kết bảng HọcSinh và LớpHọc trên hệ QTCSDL" },
+      { "time": "14:20", "seconds": 860, "title": "4. Thao tác thêm/xóa dữ liệu và xử lý vi phạm ràng buộc tham chiếu" }
+    ],
+    "exercises": [
+      {
+        "question": "Mục đích chính của việc thiết lập khóa ngoài (FOREIGN KEY) trong CSDL quan hệ là gì?",
+        "options": [
+          "Tăng tốc độ truy vấn SELECT bảng lên mức tối đa.",
+          "Bảo đảm tính toàn vẹn tham chiếu dữ liệu giữa bảng cha và bảng con.",
+          "Tự động mã hóa bảo mật các trường nhạy cảm.",
+          "Cho phép nhập dữ liệu trùng lặp ở cột khóa chính."
+        ],
+        "correctIndex": 1,
+        "explanation": "Khóa ngoài đảm bảo giá trị trong cột liên kết của bảng con luôn phải tồn tại hợp lệ ở khóa chính của bảng cha được tham chiếu."
+      },
+      {
+        "question": "Cú pháp SQL nào sau đây dùng để khai báo cột `MaLop` làm khóa ngoài tham chiếu tới bảng `LOPHOC`?",
+        "options": [
+          "FOREIGN KEY (MaLop) REFERENCES LOPHOC(MaLop)",
+          "LINK KEY (MaLop) TO LOPHOC(MaLop)",
+          "PRIMARY KEY (MaLop) IN LOPHOC(MaLop)",
+          "JOIN KEY (MaLop) WITH LOPHOC(MaLop)"
+        ],
+        "correctIndex": 0,
+        "explanation": "Cú pháp chuẩn SQL định nghĩa khóa ngoài: `FOREIGN KEY (CotCon) REFERENCES BangCha(CotCha)`."
+      },
+      {
+        "question": "Khi xóa một dòng ở bảng cha mà khóa chính đó đang được bảng con tham chiếu tới (với tùy chọn mặc định RESTRICT), hệ thống sẽ:",
+        "options": [
+          "Tự động xóa luôn toàn bộ bảng con.",
+          "Báo lỗi vi phạm toàn vẹn tham chiếu và từ chối thao tác xóa.",
+          "Gán toàn bộ các giá trị tham chiếu bên bảng con về 0.",
+          "Xóa thành công mà không có thông báo gì."
+        ],
+        "correctIndex": 1,
+        "explanation": "Ràng buộc toàn vẹn tham chiếu ngăn chặn thao tác xóa dòng ở bảng cha khi vẫn còn dữ liệu ở bảng con đang tham chiếu tới."
+      }
+    ]
+  },
+  {
+    "id": "vid-12-01",
+    "grade": "12",
+    "track": "Chung",
+    "title": "Bài 17: Các mức ưu tiên của bộ chọn (CSS)",
+    "url": "https://www.youtube.com/watch?v=pE5krdeyg_U",
+    "chapters": [
+      { "time": "00:00", "seconds": 0, "title": "1. Thứ tự nạp CSS (Inline, Internal, External)" },
+      { "time": "03:50", "seconds": 230, "title": "2. Độ đặc hiệu (Specificity): Element vs Class vs ID" },
+      { "time": "08:30", "seconds": 510, "title": "3. Quy tắc !important và Thứ tự khai báo mã nguồn (Source Order)" },
+      { "time": "13:15", "seconds": 795, "title": "4. Thực hành tính điểm Specificity qua bài tập ví dụ" }
+    ],
+    "exercises": [
+      {
+        "question": "Bộ chọn CSS nào sau đây có độ ưu tiên (Specificity) cao nhất khi cùng áp dụng định dạng cho một thẻ HTML?",
+        "options": [
+          "Bộ chọn phần tử (Type selector): p { color: red; }",
+          "Bộ chọn lớp (Class selector): .text-red { color: red; }",
+          "Bộ chọn định danh (ID selector): #main-title { color: red; }",
+          "Bộ chọn toàn cục: * { color: red; }"
+        ],
+        "correctIndex": 2,
+        "explanation": "Trong thang đo Specificity: ID Selector (1,0,0) có mức ưu tiên vượt trội so với Class Selector (0,1,0), Type Selector (0,0,1) và Universal Selector (0,0,0)."
+      },
+      {
+        "question": "Nếu cùng một phần tử vừa có style nội dòng `style='color: blue'` vừa chịu tác động của quy tắc CSS ngoài có `!important`, màu nào sẽ hiển thị?",
+        "options": [
+          "Màu trong style nội dòng luôn luôn được ưu tiên.",
+          "Quy tắc chứa `!important` sẽ ghi đè kể cả style nội dòng thông thường.",
+          "Trình duyệt bỏ qua cả hai và lấy màu mặc định.",
+          "Quy tắc nào tải về sau cùng sẽ hiển thị."
+        ],
+        "correctIndex": 1,
+        "explanation": "Từ khóa `!important` có mức ưu tiên cao nhất trong cơ chế Cascading của CSS, ghi đè cả inline style nếu inline style đó không có `!important`."
+      },
+      {
+        "question": "Khi hai bộ chọn có cùng cấp độ ưu tiên (ví dụ cùng là 2 Class selector) áp dụng lên cùng một phần tử, quy tắc nào sẽ được chọn?",
+        "options": [
+          "Quy tắc được khai báo trước trong file CSS.",
+          "Quy tắc xuất hiện sau cùng trong mã nguồn CSS (Source Order).",
+          "Trình duyệt chọn ngẫu nhiên một trong hai.",
+          "Cả hai quy tắc đều bị hủy bỏ."
+        ],
+        "correctIndex": 1,
+        "explanation": "Theo nguyên tắc Cascading: khi độ ưu tiên Specificity ngang nhau, quy tắc nào xuất hiện sau cùng trong mã nguồn sẽ ghi đè quy tắc xuất hiện trước."
+      }
+    ]
+  },
+  {
+    "id": "vid-12-cs-01",
+    "grade": "12",
+    "track": "Khoa học máy tính",
+    "title": "Bài 29: Mô phỏng trong giải quyết vấn đề",
+    "url": "https://www.youtube.com/watch?v=Fs1GecPiQ2c",
+    "chapters": [
+      { "time": "00:00", "seconds": 0, "title": "1. Khái niệm Mô phỏng (Simulation) & Ý nghĩa trong Tin học" },
+      { "time": "04:15", "seconds": 255, "title": "2. Các bước thiết kế mô hình mô phỏng thực nghiệm" },
+      { "time": "09:30", "seconds": 570, "title": "3. Bài toán tung đồng xu & Phương pháp mô phỏng Monte Carlo" },
+      { "time": "15:00", "seconds": 900, "title": "4. Lập trình mô phỏng bằng Python & Đánh giá sai số" }
+    ],
+    "exercises": [
+      {
+        "question": "Lợi ích nổi bật nhất của phương pháp mô phỏng máy tính trong khoa học và đời sống là:",
+        "options": [
+          "Luôn bảo đảm kết quả chính xác tuyệt đối mà không cần kiểm chứng.",
+          "Cho phép nghiên cứu, thử nghiệm các tình huống nguy hiểm, tốn kém hoặc bất khả thi trong thực tế.",
+          "Không yêu cầu bất kỳ kiến thức toán học hay mô hình hóa nào.",
+          "Hoàn toàn thay thế mọi thực nghiệm và đo đạc vật lý."
+        ],
+        "correctIndex": 1,
+        "explanation": "Mô phỏng máy tính giúp tái hiện các hệ thống phức tạp (thời tiết, vũ trụ, phản ứng hạt nhân, dịch tễ...) một cách an toàn và tiết kiệm chi phí."
+      },
+      {
+        "question": "Để mô phỏng một sự kiện ngẫu nhiên (ví dụ gieo xúc xắc từ 1 đến 6) trong Python, ta dùng hàm nào trong thư viện `random`?",
+        "options": [
+          "random.randint(1, 6)",
+          "random.choose(1, 6)",
+          "random.simulate(1, 6)",
+          "random.sample(1, 6)"
+        ],
+        "correctIndex": 0,
+        "explanation": "Hàm `random.randint(a, b)` trả về một số nguyên ngẫu nhiên trong đoạn [a, b] (bao gồm cả a và b)."
+      },
+      {
+        "question": "Theo luật số lớn trong phương pháp mô phỏng Monte Carlo, khi số lần lặp thực nghiệm tăng lên rất nhiều thì:",
+        "options": [
+          "Tần suất xuất hiện thực nghiệm sẽ ngày càng tiến gần tới xác suất lý thuyết.",
+          "Sai số của kết quả mô phỏng sẽ ngày càng tăng cao.",
+          "Chương trình sẽ bị lỗi tràn bộ nhớ và không tính toán được.",
+          "Giá trị trung bình sẽ luôn hội tụ về số 0."
+        ],
+        "correctIndex": 0,
+        "explanation": "Định luật số lớn đảm bảo rằng khi kích thước mẫu mô phỏng đủ lớn, tần suất thực nghiệm sẽ tiệm cận với giá trị xác suất lý thuyết."
+      }
+    ]
+  },
+  {
+    "id": "vid-12-ict-01",
+    "grade": "12",
+    "track": "Tin học ứng dụng",
+    "title": "Bài 23: Chuẩn bị xây dựng trang web",
+    "url": "https://www.youtube.com/watch?v=grNdxntaLEA",
+    "chapters": [
+      { "time": "00:00", "seconds": 0, "title": "1. Xác định mục tiêu, đối tượng người dùng & Yêu cầu trang web" },
+      { "time": "03:45", "seconds": 225, "title": "2. Thiết kế cấu trúc sơ đồ trang web (Sitemap & Wireframe)" },
+      { "time": "08:20", "seconds": 500, "title": "3. Chuẩn bị tài nguyên đa phương tiện (ảnh, văn bản, font)" },
+      { "time": "13:00", "seconds": 780, "title": "4. Lựa chọn công cụ & Thiết lập môi trường lập trình web" }
+    ],
+    "exercises": [
+      {
+        "question": "Bước đầu tiên và mang tính định hướng trong quy trình chuẩn bị xây dựng một website là gì?",
+        "options": [
+          "Mua ngay tên miền và dịch vụ hosting lưu trữ đắt nhất.",
+          "Xác định rõ mục đích, chức năng của trang web và đối tượng người dùng hướng đến.",
+          "Viết mã HTML và CSS ngay lập tức.",
+          "Sao chép hoàn toàn giao diện của một trang web nổi tiếng."
+        ],
+        "correctIndex": 1,
+        "explanation": "Cần khảo sát và làm rõ mục đích sử dụng (học tập, tin tức, thương mại) và đối tượng độc giả trước khi lên kế hoạch thiết kế và phát triển."
+      },
+      {
+        "question": "Bản phác thảo khung xương (Wireframe) của trang web có vai trò chính là gì?",
+        "options": [
+          "Định nghĩa thuật toán bảo mật đăng nhập cho cơ sở dữ liệu.",
+          "Phác thảo vị trí các khối nội dung, điều hướng và cấu trúc tổng thể trước khi lập trình giao diện.",
+          "Thay thế toàn bộ tập tin CSS của trang web.",
+          "Kiểm tra tốc độ phản hồi của máy chủ máy trạm."
+        ],
+        "correctIndex": 1,
+        "explanation": "Wireframe là sơ đồ bố cục trực quan giúp đội ngũ phát triển định hình vị trí các thành phần giao diện (Header, Banner, Main Content, Sidebar, Footer)."
+      },
+      {
+        "question": "Khi chuẩn bị hình ảnh minh họa cho trang web, định dạng tệp nào sau đây thường được ưu tiên để tối ưu dung lượng và tốc độ tải trang?",
+        "options": [
+          "BMP và TIFF dung lượng không nén.",
+          "WebP, JPEG và SVG cho đồ họa vector.",
+          "PSD (Photoshop Document).",
+          "EXE hoặc MSI."
+        ],
+        "correctIndex": 1,
+        "explanation": "Định dạng WebP và JPEG tối ưu dung lượng ảnh chụp cực tốt, còn SVG là định dạng vector sắc nét, dung lượng rất nhẹ và không bị vỡ hình."
+      }
+    ]
+  }
 ]
