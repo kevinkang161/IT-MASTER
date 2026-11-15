@@ -10,10 +10,12 @@ export function Footer() {
           {/* Brand Col */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-cyan-400 flex items-center justify-center text-white shadow-md">
-                <Code2 className="w-5 h-5" />
-              </div>
-              <span className="text-xl font-extrabold tracking-tight text-white">
+              <img
+                src="/images/logo.jpg"
+                alt="IT Master Logo"
+                className="w-10 h-10 rounded-xl object-cover border border-white/10 shadow-sm shrink-0"
+              />
+              <span className="text-xl font-extrabold tracking-tight text-white whitespace-nowrap">
                 IT MASTER
               </span>
             </div>

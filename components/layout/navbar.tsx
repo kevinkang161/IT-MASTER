@@ -72,15 +72,17 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-lg bg-slate-900 text-blue-400 flex items-center justify-center font-mono font-bold text-sm shadow-sm border border-slate-800 group-hover:bg-blue-900 group-hover:text-white transition-colors">
-              <Code2 className="w-4 h-4" />
-            </div>
-            <div className="flex flex-col leading-tight">
-              <span className="text-base font-bold tracking-tight text-slate-900 dark:text-white">
+          <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+            <img
+              src="/images/logo.jpg"
+              alt="IT Master Logo"
+              className="w-10 h-10 rounded-xl object-cover border border-white/10 shadow-sm shrink-0"
+            />
+            <div className="flex flex-col leading-tight whitespace-nowrap">
+              <span className="text-base font-bold tracking-tight text-slate-900 dark:text-white whitespace-nowrap">
                 IT MASTER
               </span>
-              <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 tracking-normal">
+              <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 tracking-normal whitespace-nowrap">
                 KNTT 10 · 11 · 12
               </span>
             </div>

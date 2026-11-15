@@ -71,10 +71,12 @@ function LoginForm() {
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
         <Link href="/" className="inline-flex items-center gap-2.5 group mb-4">
-          <div className="w-10 h-10 rounded-lg bg-slate-900 text-blue-400 flex items-center justify-center font-mono font-bold text-sm shadow-sm border border-slate-800 group-hover:bg-blue-900 group-hover:text-white transition-colors">
-            <Code2 className="w-5 h-5" />
-          </div>
-          <span className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+          <img
+            src="/images/logo.jpg"
+            alt="IT Master Logo"
+            className="w-10 h-10 rounded-xl object-cover border border-white/10 shadow-sm shrink-0"
+          />
+          <span className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white whitespace-nowrap">
             IT MASTER
           </span>
         </Link>
