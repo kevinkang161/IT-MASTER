@@ -21,7 +21,7 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "IT MASTER — Nền tảng Học & Ôn thi Tin học Phổ thông Toàn diện",
   description:
-    "Học và luyện thi Tin học lớp 10, 11, 12 và kỳ thi Tốt nghiệp THPT với lộ trình bài giảng chuẩn mực, hệ thống trắc nghiệm thông minh, phòng thi thử tính giờ và gamification hấp dẫn.",
+    "Học và ôn thi môn Tin học lớp 10, 11, 12 theo chương trình GDPT 2018. Ma trận câu hỏi thi thử tốt nghiệp THPT chuẩn xác.",
   keywords: [
     "Tin học THPT",
     "Ôn thi tốt nghiệp THPT Tin học",
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "IT MASTER — Nền tảng Học & Ôn thi Tin học Phổ thông Toàn diện",
     description:
-      "Luyện tập câu hỏi phân loại theo độ khó, thi thử mô phỏng thời gian thực, tích lũy điểm kinh nghiệm và thăng hạng.",
+      "Luyện tập câu hỏi chuẩn hóa, thi thử thời gian thực 45 phút, phân loại theo ba phần thi chính thức.",
     type: "website",
     locale: "vi_VN",
   },
@@ -66,66 +66,11 @@ export default function RootLayout({
             `,
           }}
         />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                const attrs = ['bis_skin_checked', 'data-bis-skin-checked'];
-                function stripAttrs(node) {
-                  if (node && node.nodeType === 1) {
-                    attrs.forEach(function(attr) {
-                      if (node.hasAttribute(attr)) node.removeAttribute(attr);
-                    });
-                    if (node.querySelectorAll) {
-                      attrs.forEach(function(attr) {
-                        const els = node.querySelectorAll('[' + attr + ']');
-                        for (let i = 0; i < els.length; i++) els[i].removeAttribute(attr);
-                      });
-                    }
-                  }
-                }
-                stripAttrs(document.documentElement);
-                const observer = new MutationObserver(function(mutations) {
-                  for (let i = 0; i < mutations.length; i++) {
-                    const m = mutations[i];
-                    if (m.type === 'attributes' && attrs.indexOf(m.attributeName) !== -1) {
-                      m.target.removeAttribute(m.attributeName);
-                    } else if (m.type === 'childList') {
-                      for (let j = 0; j < m.addedNodes.length; j++) {
-                        stripAttrs(m.addedNodes[j]);
-                      }
-                    }
-                  }
-                });
-                observer.observe(document.documentElement, {
-                  attributes: true,
-                  childList: true,
-                  subtree: true,
-                  attributeFilter: attrs
-                });
-              })();
-            `,
-          }}
-        />
       </head>
-      <body className={`${beVietnam.variable} ${jetbrainsMono.variable} font-sans antialiased bg-[#F8FAFC] dark:bg-[#070B19] text-slate-900 dark:text-slate-100 min-h-screen flex flex-col relative selection:bg-indigo-500/20 selection:text-indigo-600 dark:selection:text-indigo-300`} suppressHydrationWarning>
-        {/* GLOBAL ATMOSPHERIC BACKGROUND (TECH & MODERN CS) */}
-        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
-          {/* Top subtle illumination cone */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1100px] h-[550px] bg-gradient-to-b from-indigo-500/10 dark:from-indigo-600/15 via-blue-500/5 dark:via-blue-600/5 to-transparent blur-3xl opacity-75" />
-          {/* Global engineering grid */}
-          <div className="absolute inset-0 bg-tech-grid mask-radial-fade opacity-80 dark:opacity-50" />
-          {/* Ambient lighting spots for long scrolling pages */}
-          <div className="absolute top-[35%] -right-48 w-[500px] h-[500px] bg-blue-500/5 dark:bg-blue-600/10 blur-3xl rounded-full" />
-          <div className="absolute top-[70%] -left-48 w-[500px] h-[500px] bg-indigo-500/5 dark:bg-indigo-600/10 blur-3xl rounded-full" />
-        </div>
-
-        {/* CONTENT TREE */}
-        <div className="relative z-10 flex flex-col min-h-screen">
-          <AuthProvider>
-            <AuthGuard>{children}</AuthGuard>
-          </AuthProvider>
-        </div>
+      <body className={`${beVietnam.variable} ${jetbrainsMono.variable} font-sans antialiased min-h-screen flex flex-col selection:bg-blue-600 selection:text-white`} suppressHydrationWarning>
+        <AuthProvider>
+          <AuthGuard>{children}</AuthGuard>
+        </AuthProvider>
       </body>
     </html>
   );
