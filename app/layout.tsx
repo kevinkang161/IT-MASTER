@@ -108,10 +108,24 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${beVietnam.variable} ${jetbrainsMono.variable} font-sans antialiased bg-[#F8FAFC] dark:bg-[#0B1120] text-slate-900 dark:text-slate-100 min-h-screen flex flex-col`} suppressHydrationWarning>
-        <AuthProvider>
-          <AuthGuard>{children}</AuthGuard>
-        </AuthProvider>
+      <body className={`${beVietnam.variable} ${jetbrainsMono.variable} font-sans antialiased bg-[#F8FAFC] dark:bg-[#070B19] text-slate-900 dark:text-slate-100 min-h-screen flex flex-col relative selection:bg-indigo-500/20 selection:text-indigo-600 dark:selection:text-indigo-300`} suppressHydrationWarning>
+        {/* GLOBAL ATMOSPHERIC BACKGROUND (TECH & MODERN CS) */}
+        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+          {/* Top subtle illumination cone */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1100px] h-[550px] bg-gradient-to-b from-indigo-500/10 dark:from-indigo-600/15 via-blue-500/5 dark:via-blue-600/5 to-transparent blur-3xl opacity-75" />
+          {/* Global engineering grid */}
+          <div className="absolute inset-0 bg-tech-grid mask-radial-fade opacity-80 dark:opacity-50" />
+          {/* Ambient lighting spots for long scrolling pages */}
+          <div className="absolute top-[35%] -right-48 w-[500px] h-[500px] bg-blue-500/5 dark:bg-blue-600/10 blur-3xl rounded-full" />
+          <div className="absolute top-[70%] -left-48 w-[500px] h-[500px] bg-indigo-500/5 dark:bg-indigo-600/10 blur-3xl rounded-full" />
+        </div>
+
+        {/* CONTENT TREE */}
+        <div className="relative z-10 flex flex-col min-h-screen">
+          <AuthProvider>
+            <AuthGuard>{children}</AuthGuard>
+          </AuthProvider>
+        </div>
       </body>
     </html>
   );
