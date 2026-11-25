@@ -2,20 +2,32 @@
 
 import React, { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/auth/auth-context";
-import { Code2, Loader2, Sparkles } from "lucide-react";
 
-// Routes that do NOT require authentication
-const PUBLIC_PATHS = [
+// Exact routes accessible without authentication
+const PUBLIC_EXACT_PATHS = [
+  "/",
+  "/learning",
+  "/videos",
+  "/exams",
+  "/leaderboard",
   "/login",
   "/register",
   "/forgot-password",
   "/reset-password",
-  "/api",
 ];
 
+// Prefix routes accessible without authentication
+const PUBLIC_PREFIX_PATHS = ["/api"];
+
 function isPublicPath(pathname: string): boolean {
-  return PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(path + "/"));
+  if (PUBLIC_EXACT_PATHS.includes(pathname)) {
+    return true;
+  }
+  return PUBLIC_PREFIX_PATHS.some(
+    (prefix) => pathname === prefix || pathname.startsWith(prefix + "/")
+  );
 }
 
 function AuthGuardInner({ children }: { children: React.ReactNode }) {
@@ -40,14 +52,13 @@ function AuthGuardInner({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // 2. If a trial/demo user navigates to /login or /register:
-    // Automatically end trial session so they can seamlessly register or sign in with their real account directly!
+    // 2. Demo user navigating to /login or /register: end trial session cleanly
     if (user && isDemo && (pathname === "/login" || pathname === "/register")) {
       logout();
       return;
     }
 
-    // 3. Authenticated REAL user trying to access /login or /register
+    // 3. Authenticated real user trying to access /login or /register
     if (user && !isDemo && (pathname === "/login" || pathname === "/register")) {
       setIsRedirecting(true);
       const redirectTarget = searchParams?.get("redirect") || "/dashboard";
@@ -67,23 +78,28 @@ function AuthGuardInner({ children }: { children: React.ReactNode }) {
 
   const publicRoute = isPublicPath(pathname);
 
-  // While authenticating on protected routes, or while redirecting, show a smooth branded loading screen
-  if ((isLoading && !publicRoute) || (isRedirecting && !publicRoute) || (isRedirecting && (pathname === "/login" || pathname === "/register"))) {
+  if (
+    (isLoading && !publicRoute) ||
+    (isRedirecting && !publicRoute) ||
+    (isRedirecting && (pathname === "/login" || pathname === "/register"))
+  ) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0B1120] flex flex-col items-center justify-center p-4 font-sans transition-colors">
+      <div className="min-h-screen bg-[var(--bg)] text-[var(--text-primary)] flex flex-col items-center justify-center p-4 font-sans transition-colors">
         <div className="flex flex-col items-center max-w-sm text-center">
-          <div className="w-14 h-14 rounded-2xl bg-slate-900 text-blue-400 flex items-center justify-center font-mono font-bold text-xl shadow-lg border border-slate-800 mb-5 animate-pulse">
-            <Code2 className="w-7 h-7" />
-          </div>
-          <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+          <img
+            src="/images/logo.jpg"
+            alt="IT MASTER"
+            className="w-12 h-12 rounded-xl object-cover border border-[var(--border)] mb-4"
+          />
+          <h2 className="text-lg font-bold tracking-tight text-[var(--text-primary)]">
             IT MASTER
           </h2>
-          <p className="text-xs font-mono text-slate-500 dark:text-slate-400 mt-1 mb-6">
-            Nền tảng Học & Ôn thi Tin học Toàn diện
+          <p className="text-xs text-[var(--text-muted)] mt-1 mb-5">
+            Nền tảng Học &amp; Ôn thi Tin học THPT
           </p>
-          <div className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300">
-            <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-600 dark:text-indigo-400" />
-            <span>Đang xác thực thông tin học sinh...</span>
+          <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--surface)] border border-[var(--border)] text-xs text-[var(--text-secondary)]">
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600 dark:text-blue-400" />
+            <span>Đang xác thực tài khoản...</span>
           </div>
         </div>
       </div>
@@ -97,8 +113,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   return (
     <React.Suspense
       fallback={
-        <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0B1120] flex items-center justify-center">
-          <Loader2 className="w-6 h-6 animate-spin text-indigo-600" />
+        <div className="min-h-screen bg-[var(--bg)] flex items-center justify-center">
+          <Loader2 className="w-6 h-6 animate-spin text-blue-600 dark:text-blue-400" />
         </div>
       }
     >

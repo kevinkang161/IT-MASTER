@@ -1,19 +1,12 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import Link from "next/link";
 import {
   CheckCircle2,
   XCircle,
   HelpCircle,
-  Filter,
-  ArrowRight,
-  RotateCcw,
   Zap,
-  Code2,
-  Bookmark,
   ChevronRight,
-  Award,
 } from "lucide-react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
@@ -21,8 +14,9 @@ import { Button } from "@/components/ui/button";
 import { CodeViewer } from "@/components/ui/code-viewer";
 import { useAuth } from "@/lib/auth/auth-context";
 import { recordQuestionPracticed } from "@/lib/progress";
-import { MOCK_QUESTIONS, MOCK_GRADES } from "@/lib/mock-data";
-import { Question, QuestionDifficulty, QuestionType } from "@/types/database";
+import { MOCK_QUESTIONS } from "@/lib/mock-data";
+import { DIFFICULTY_LABELS, getCodeLanguage } from "@/lib/exam-grading";
+import { Question } from "@/types/database";
 
 export default function PracticePage() {
   const { user, addXp } = useAuth();
@@ -55,6 +49,15 @@ export default function PracticePage() {
   }, [selectedGrade, selectedDifficulty, selectedType]);
 
   const currentQ: Question | undefined = filteredQuestions[currentIndex] || filteredQuestions[0];
+
+  const resetQuestionState = () => {
+    setCurrentIndex(0);
+    setIsAnswerSubmitted(false);
+    setIsCorrectResult(null);
+    setSelectedOptionId("");
+    setShortAnswerInput("");
+    setTrueFalseSelections({});
+  };
 
   const handleSelectOption = (optId: string) => {
     if (isAnswerSubmitted) return;
@@ -113,77 +116,74 @@ export default function PracticePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8FAFC] dark:bg-[#0B1120] text-slate-900 dark:text-slate-100 font-sans transition-colors">
+    <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--text-primary)] font-sans transition-colors">
       <Navbar />
 
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-7">
+      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-6">
         {/* HEADER & SCORE COUNTER */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-5 border-b border-[var(--border)]">
           <div className="space-y-1">
-            <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 uppercase tabular-nums">
+            <span className="text-xs font-mono text-[var(--text-muted)]">
               Ôn luyện tương tác
             </span>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-              Luyện tập theo chuyên đề & Chuẩn đề thi 2025
+            <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] tracking-tight">
+              Luyện tập theo chuyên đề
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-              Kiểm tra tức thì, giải thích chi tiết từng bước, tích lũy điểm kinh nghiệm XP.
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)]">
+              Kiểm tra đáp án tức thì, xem lời giải chi tiết và tích lũy điểm XP.
             </p>
           </div>
 
-          {/* Quick Session Stats */}
-          <div className="flex items-center gap-3 bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 px-4 py-2 rounded-xl shadow-swiss text-xs font-mono">
+          <div className="flex items-center gap-3 bg-[var(--surface)] border border-[var(--border)] px-4 py-2 rounded-lg text-xs font-mono">
             <div>
-              <span className="text-slate-400">Đã làm: </span>
-              <strong className="text-slate-900 dark:text-slate-100 tabular-nums">{scoreStats.answered}</strong>
+              <span className="text-[var(--text-muted)]">Đã làm: </span>
+              <strong className="text-[var(--text-primary)] tabular-nums">{scoreStats.answered}</strong>
             </div>
-            <div className="w-px h-3.5 bg-slate-200 dark:bg-slate-700" />
+            <div className="w-px h-3.5 bg-[var(--border)]" />
             <div>
-              <span className="text-slate-400">Đúng: </span>
+              <span className="text-[var(--text-muted)]">Đúng: </span>
               <strong className="text-emerald-600 dark:text-emerald-400 tabular-nums">{scoreStats.correct}</strong>
             </div>
-            <div className="w-px h-3.5 bg-slate-200 dark:bg-slate-700" />
-            <div className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400 font-bold">
+            <div className="w-px h-3.5 bg-[var(--border)]" />
+            <div className="flex items-center gap-1 text-blue-600 dark:text-blue-400 font-semibold">
               <Zap className="w-3.5 h-3.5 fill-current" />
               <span className="tabular-nums">+{scoreStats.xpEarned} XP</span>
             </div>
           </div>
         </div>
 
-        {/* SWISS FILTERS GRID */}
-        <div className="p-4 bg-white dark:bg-[#0f172a] rounded-xl border border-slate-200 dark:border-slate-800 shadow-swiss grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {/* Grade filter */}
+        {/* FILTERS GRID */}
+        <div className="p-4 hallmark-surface grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label className="block text-[11px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
               Khối lớp
             </label>
             <select
               value={selectedGrade}
               onChange={(e) => {
                 setSelectedGrade(e.target.value === "all" ? "all" : Number(e.target.value));
-                setCurrentIndex(0);
+                resetQuestionState();
               }}
-              className="w-full text-xs font-medium p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full text-xs sm:text-sm p-2 bg-[var(--bg)] border border-[var(--border)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-blue-600"
             >
               <option value="all">Tất cả khối lớp (10, 11, 12)</option>
-              <option value={10}>Lớp 10 (Python & Phần cứng)</option>
-              <option value={11}>Lớp 11 (SQL & Hệ điều hành)</option>
+              <option value={10}>Lớp 10 (Python &amp; Phần cứng)</option>
+              <option value={11}>Lớp 11 (SQL &amp; Hệ điều hành)</option>
               <option value={12}>Lớp 12 (AI, HTML/CSS, Mạng)</option>
             </select>
           </div>
 
-          {/* Difficulty filter */}
           <div>
-            <label className="block text-[11px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
               Mức độ nhận thức
             </label>
             <select
               value={selectedDifficulty}
               onChange={(e) => {
                 setSelectedDifficulty(e.target.value);
-                setCurrentIndex(0);
+                resetQuestionState();
               }}
-              className="w-full text-xs font-medium p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full text-xs sm:text-sm p-2 bg-[var(--bg)] border border-[var(--border)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-blue-600"
             >
               <option value="all">Mọi độ khó</option>
               <option value="nhan_biet">Nhận biết</option>
@@ -193,22 +193,21 @@ export default function PracticePage() {
             </select>
           </div>
 
-          {/* Question Type filter */}
           <div>
-            <label className="block text-[11px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
               Định dạng câu hỏi
             </label>
             <select
               value={selectedType}
               onChange={(e) => {
                 setSelectedType(e.target.value);
-                setCurrentIndex(0);
+                resetQuestionState();
               }}
-              className="w-full text-xs font-medium p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full text-xs sm:text-sm p-2 bg-[var(--bg)] border border-[var(--border)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-blue-600"
             >
               <option value="all">Tất cả định dạng</option>
               <option value="single_choice">Trắc nghiệm 4 lựa chọn</option>
-              <option value="true_false">Đúng / Sai 4 ý (Chuẩn 2025)</option>
+              <option value="true_false">Đúng / Sai 4 ý</option>
               <option value="short_answer">Trả lời ngắn</option>
             </select>
           </div>
@@ -216,26 +215,21 @@ export default function PracticePage() {
 
         {/* QUESTION DISPLAY CARD */}
         {currentQ ? (
-          <article className="p-6 sm:p-8 bg-white dark:bg-[#0f172a] rounded-xl border border-slate-200 dark:border-slate-800 shadow-swiss space-y-6">
-            {/* Question Top Tags */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pb-3.5 border-b border-slate-100 dark:border-slate-800">
+          <article className="p-6 sm:p-8 hallmark-surface space-y-6">
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-3.5 border-b border-[var(--border)]">
               <div className="flex items-center gap-2">
-                <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-900 text-white dark:bg-slate-800 dark:text-indigo-300 tabular-nums uppercase">
+                <span className="font-mono text-xs font-semibold px-2.5 py-0.5 rounded bg-[var(--text-primary)] text-[var(--bg)] tabular-nums">
                   Câu {currentIndex + 1} / {filteredQuestions.length}
                 </span>
-                <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded">
-                  Khối Lớp {currentQ.grade_id}
+                <span className="text-[11px] font-mono text-[var(--text-muted)] border border-[var(--border)] px-2 py-0.5 rounded">
+                  Lớp {currentQ.grade_id}
                 </span>
-                <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded">
-                  {currentQ.difficulty === "nhan_biet"
-                    ? "Nhận biết"
-                    : currentQ.difficulty === "thong_hieu"
-                    ? "Thông hiểu"
-                    : "Vận dụng"}
+                <span className="text-[11px] text-[var(--text-secondary)] border border-[var(--border)] px-2 py-0.5 rounded">
+                  {DIFFICULTY_LABELS[currentQ.difficulty]}
                 </span>
               </div>
 
-              <span className="text-xs font-mono font-medium text-indigo-600 dark:text-indigo-400">
+              <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
                 {currentQ.question_type === "single_choice"
                   ? "Chọn 1 phương án đúng"
                   : currentQ.question_type === "true_false"
@@ -244,25 +238,23 @@ export default function PracticePage() {
               </span>
             </div>
 
-            {/* Question Content */}
             <div className="space-y-4">
-              <p className="text-base sm:text-lg font-medium text-slate-900 dark:text-slate-100 leading-relaxed whitespace-pre-line">
+              <p className="text-base sm:text-lg font-medium text-[var(--text-primary)] leading-relaxed whitespace-pre-line">
                 {currentQ.content}
               </p>
 
               {currentQ.code_snippet && (
-                <CodeViewer code={currentQ.code_snippet} language="python" />
+                <CodeViewer code={currentQ.code_snippet} language={getCodeLanguage(currentQ)} />
               )}
             </div>
 
-            {/* OPTIONS RENDERING BASED ON TYPE */}
             {/* 1. Single Choice */}
             {currentQ.question_type === "single_choice" && currentQ.options && (
               <div className="space-y-2.5 pt-2">
                 {currentQ.options.map((opt, i) => {
                   const isSelected = selectedOptionId === opt.id;
                   let optionStyles =
-                    "bg-white dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700";
+                    "bg-[var(--bg)] border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--text-muted)] hover:text-[var(--text-primary)]";
 
                   if (isAnswerSubmitted) {
                     if (opt.is_correct) {
@@ -272,25 +264,27 @@ export default function PracticePage() {
                       optionStyles =
                         "bg-rose-50 dark:bg-rose-950/40 border-rose-500 text-rose-900 dark:text-rose-200 line-through";
                     } else {
-                      optionStyles = "opacity-50 border-slate-200 dark:border-slate-800";
+                      optionStyles = "opacity-50 border-[var(--border)]";
                     }
                   } else if (isSelected) {
                     optionStyles =
-                      "bg-indigo-50/70 dark:bg-indigo-950/40 border-indigo-600 dark:border-indigo-500 text-slate-900 dark:text-white font-medium";
+                      "bg-[var(--accent-subtle)] border-blue-600 dark:border-blue-500 text-[var(--text-primary)] font-medium";
                   }
 
                   return (
-                    <div
+                    <button
                       key={opt.id}
+                      type="button"
+                      disabled={isAnswerSubmitted}
                       onClick={() => handleSelectOption(opt.id)}
-                      className={`p-3.5 rounded-lg border text-xs sm:text-sm flex items-start justify-between gap-3 cursor-pointer transition select-none ${optionStyles}`}
+                      className={`w-full text-left p-3.5 rounded-lg border text-xs sm:text-sm flex items-start justify-between gap-3 cursor-pointer disabled:cursor-default transition-colors select-none ${optionStyles}`}
                     >
                       <div className="flex items-start gap-3">
                         <span
-                          className={`w-6 h-6 rounded flex items-center justify-center font-mono text-xs font-bold shrink-0 transition ${
+                          className={`w-6 h-6 rounded flex items-center justify-center font-mono text-xs font-semibold shrink-0 transition-colors ${
                             isSelected
-                              ? "bg-indigo-600 text-white"
-                              : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700"
+                              ? "bg-blue-600 text-white"
+                              : "bg-[var(--surface)] text-[var(--text-muted)] border border-[var(--border)]"
                           }`}
                         >
                           {String.fromCharCode(65 + i)}
@@ -299,21 +293,21 @@ export default function PracticePage() {
                       </div>
 
                       {isAnswerSubmitted && opt.is_correct && (
-                        <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                        <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                       )}
                       {isAnswerSubmitted && isSelected && !opt.is_correct && (
-                        <XCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+                        <XCircle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
                       )}
-                    </div>
+                    </button>
                   );
                 })}
               </div>
             )}
 
-            {/* 2. True / False Swiss Table Matrix */}
+            {/* 2. True / False Matrix */}
             {currentQ.question_type === "true_false" && currentQ.options && (
-              <div className="overflow-hidden border border-slate-200 dark:border-slate-800 rounded-lg">
-                <div className="grid grid-cols-12 bg-slate-100/80 dark:bg-slate-850 px-4 py-2 text-[11px] font-mono uppercase tracking-wider font-bold text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+              <div className="overflow-hidden border border-[var(--border)] rounded-lg">
+                <div className="grid grid-cols-12 bg-[var(--bg-subtle)] px-4 py-2.5 text-xs font-semibold text-[var(--text-secondary)] border-b border-[var(--border)]">
                   <div className="col-span-8 sm:col-span-9">Nội dung khẳng định</div>
                   <div className="col-span-4 sm:col-span-3 text-center grid grid-cols-2">
                     <span>Đúng</span>
@@ -321,25 +315,24 @@ export default function PracticePage() {
                   </div>
                 </div>
 
-                <div className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                <div className="divide-y divide-[var(--border)]">
                   {currentQ.options.map((opt) => {
                     const currentSelection = trueFalseSelections[opt.id];
                     const isEvaluated = isAnswerSubmitted;
-                    const isCorrectAnswer = opt.is_correct;
-                    const userGotItRight = currentSelection === isCorrectAnswer;
+                    const userGotItRight = currentSelection === opt.is_correct;
 
                     return (
                       <div
                         key={opt.id}
-                        className={`grid grid-cols-12 items-center p-3 sm:p-4 text-xs sm:text-sm transition gap-2 ${
+                        className={`grid grid-cols-12 items-center p-3 sm:p-4 text-xs sm:text-sm transition-colors gap-2 ${
                           isEvaluated
                             ? userGotItRight
                               ? "bg-emerald-50/40 dark:bg-emerald-950/20"
                               : "bg-rose-50/40 dark:bg-rose-950/20"
-                            : "hover:bg-slate-50/50 dark:hover:bg-slate-900/40"
+                            : "hover:bg-[var(--bg-subtle)]/50"
                         }`}
                       >
-                        <div className="col-span-8 sm:col-span-9 text-slate-800 dark:text-slate-200 leading-relaxed pr-2">
+                        <div className="col-span-8 sm:col-span-9 text-[var(--text-primary)] leading-relaxed pr-2">
                           {opt.content}
                         </div>
 
@@ -348,10 +341,10 @@ export default function PracticePage() {
                             type="button"
                             disabled={isAnswerSubmitted}
                             onClick={() => handleTrueFalseToggle(opt.id, true)}
-                            className={`py-1.5 rounded text-xs font-mono font-bold transition border ${
+                            className={`py-1.5 rounded text-xs font-semibold transition-colors border cursor-pointer disabled:cursor-default ${
                               currentSelection === true
-                                ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
-                                : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                                ? "bg-blue-600 text-white border-blue-600"
+                                : "border-[var(--border)] bg-[var(--bg)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                             }`}
                           >
                             Đúng
@@ -360,10 +353,10 @@ export default function PracticePage() {
                             type="button"
                             disabled={isAnswerSubmitted}
                             onClick={() => handleTrueFalseToggle(opt.id, false)}
-                            className={`py-1.5 rounded text-xs font-mono font-bold transition border ${
+                            className={`py-1.5 rounded text-xs font-semibold transition-colors border cursor-pointer disabled:cursor-default ${
                               currentSelection === false
-                                ? "bg-slate-700 dark:bg-slate-600 text-white border-slate-700 dark:border-slate-600 shadow-sm"
-                                : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                                ? "bg-slate-700 dark:bg-slate-600 text-white border-slate-700 dark:border-slate-600"
+                                : "border-[var(--border)] bg-[var(--bg)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                             }`}
                           >
                             Sai
@@ -378,8 +371,8 @@ export default function PracticePage() {
 
             {/* 3. Short Answer */}
             {currentQ.question_type === "short_answer" && (
-              <div className="space-y-3 pt-2 max-w-md">
-                <label className="block text-xs font-mono font-semibold uppercase text-slate-500 dark:text-slate-400">
+              <div className="space-y-2.5 pt-2 max-w-md">
+                <label className="block text-xs font-medium text-[var(--text-secondary)]">
                   Nhập câu trả lời của bạn:
                 </label>
                 <input
@@ -388,12 +381,12 @@ export default function PracticePage() {
                   onChange={(e) => setShortAnswerInput(e.target.value)}
                   disabled={isAnswerSubmitted}
                   placeholder="Nhập số hoặc chuỗi kết quả..."
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-mono text-sm tabular-nums focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--bg)] text-[var(--text-primary)] font-mono text-sm tabular-nums focus:outline-none focus:ring-2 focus:ring-blue-600 transition-colors"
                 />
                 {isAnswerSubmitted && (
-                  <div className="text-xs font-mono pt-1 text-slate-600 dark:text-slate-400">
+                  <div className="text-xs font-mono pt-1 text-[var(--text-secondary)]">
                     Đáp án được chấp nhận:{" "}
-                    <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+                    <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
                       {currentQ.accepted_answers?.join(", ")}
                     </span>
                   </div>
@@ -402,9 +395,9 @@ export default function PracticePage() {
             )}
 
             {/* ACTION FOOTER */}
-            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
-              <span className="text-xs text-slate-400 font-mono hidden sm:inline">
-                +10 XP cho câu trả lời đúng • +2 XP động viên
+            <div className="pt-4 border-t border-[var(--border)] flex items-center justify-between gap-3">
+              <span className="text-xs text-[var(--text-muted)] hidden sm:inline">
+                +10 XP khi trả lời đúng · +2 XP động viên
               </span>
 
               <div className="flex items-center gap-2 ml-auto">
@@ -418,32 +411,28 @@ export default function PracticePage() {
                         ? !shortAnswerInput.trim()
                         : Object.keys(trueFalseSelections).length < (currentQ.options?.length || 0)
                     }
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs sm:text-sm"
                   >
                     Kiểm tra kết quả
                   </Button>
                 ) : (
-                  <Button
-                    onClick={handleNextQuestion}
-                    className="bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white font-semibold text-xs sm:text-sm"
-                  >
+                  <Button variant="secondary" onClick={handleNextQuestion}>
                     <span>Câu tiếp theo</span>
-                    <ChevronRight className="w-4 h-4 ml-1" />
+                    <ChevronRight className="w-4 h-4" />
                   </Button>
                 )}
               </div>
             </div>
 
-            {/* EXPLANATION ACCORDION (SHOWN AFTER SUBMISSION) */}
+            {/* EXPLANATION */}
             {isAnswerSubmitted && (
               <div
-                className={`p-4 sm:p-5 rounded-xl border text-xs sm:text-sm space-y-2 ${
+                className={`p-4 sm:p-5 rounded-lg border text-xs sm:text-sm space-y-2 ${
                   isCorrectResult
-                    ? "bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/50 text-emerald-950 dark:text-emerald-200"
-                    : "bg-amber-50/70 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/50 text-amber-950 dark:text-amber-200"
+                    ? "bg-emerald-50/60 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/60 text-emerald-950 dark:text-emerald-200"
+                    : "bg-amber-50/60 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/60 text-amber-950 dark:text-amber-200"
                 }`}
               >
-                <div className="flex items-center gap-2 font-bold font-mono">
+                <div className="flex items-center gap-2 font-semibold">
                   {isCorrectResult ? (
                     <>
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
@@ -456,18 +445,32 @@ export default function PracticePage() {
                     </>
                   )}
                 </div>
-                <p className="leading-relaxed text-slate-700 dark:text-slate-300 font-sans pl-6">
+                <p className="leading-relaxed text-[var(--text-secondary)] pl-6">
                   {currentQ.explanation}
                 </p>
               </div>
             )}
           </article>
         ) : (
-          <div className="p-12 text-center bg-white dark:bg-[#0f172a] rounded-xl border border-slate-200 dark:border-slate-800 space-y-3">
-            <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">
+          <div className="p-12 text-center hallmark-surface space-y-3">
+            <h3 className="text-base font-bold text-[var(--text-primary)]">
               Không có câu hỏi theo bộ lọc này
             </h3>
-            <p className="text-xs text-slate-500">Vui lòng điều chỉnh lại tiêu chí khối lớp hoặc độ khó.</p>
+            <p className="text-xs text-[var(--text-secondary)]">
+              Vui lòng điều chỉnh lại tiêu chí khối lớp hoặc độ khó.
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setSelectedGrade("all");
+                setSelectedDifficulty("all");
+                setSelectedType("all");
+                resetQuestionState();
+              }}
+            >
+              Đặt lại bộ lọc
+            </Button>
           </div>
         )}
       </main>

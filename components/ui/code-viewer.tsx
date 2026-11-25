@@ -32,22 +32,22 @@ export function CodeViewer({
   return (
     <div
       className={cn(
-        "my-3 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-900 text-slate-100 font-mono text-xs sm:text-sm tabular-nums",
+        "my-3 rounded-lg overflow-hidden border border-[var(--border)] bg-[#0f172a] text-slate-100 font-mono text-xs sm:text-sm tabular-nums",
         className
       )}
     >
-      <div className="flex items-center justify-between px-3.5 py-1.5 bg-slate-950/80 border-b border-slate-800 text-[11px] text-slate-400">
-        <div className="flex items-center gap-2">
-          <span className="inline-block w-2.5 h-2.5 rounded-full bg-slate-700" />
-          <span className="font-semibold uppercase tracking-wider text-slate-300 font-mono">
+      <div className="flex items-center justify-between px-3.5 py-2 bg-[#0b1120] border-b border-slate-800 text-[11px] text-slate-400">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="font-semibold uppercase text-slate-300 font-mono">
             {language}
           </span>
-          {caption && <span className="text-slate-500 font-sans">— {caption}</span>}
+          {caption && <span className="text-slate-400 font-sans truncate">— {caption}</span>}
         </div>
         <button
+          type="button"
           onClick={handleCopy}
           aria-label="Sao chép mã"
-          className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-sans text-slate-400 hover:text-white hover:bg-slate-800 transition"
+          className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-sans text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer shrink-0"
         >
           {copied ? (
             <>

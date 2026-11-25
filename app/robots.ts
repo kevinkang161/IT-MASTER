@@ -5,8 +5,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/learning", "/practice", "/exams", "/leaderboard"],
-        disallow: ["/dashboard", "/admin", "/profile", "/reset-password"],
+        allow: ["/", "/learning", "/videos", "/exams", "/leaderboard"],
+        disallow: ["/dashboard", "/admin", "/profile", "/practice", "/reset-password"],
       },
     ],
     sitemap: "https://itmaster.edu.vn/sitemap.xml",

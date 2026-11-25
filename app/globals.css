@@ -1,6 +1,4 @@
 /* hallmark: 2.0.0 · genre: edtech · theme: slate-editorial */
-@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -88,8 +86,22 @@ code, pre, kbd, samp, .font-mono {
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .hallmark-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hallmark-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
 }
 
 /* Editorial Surface styles without AI-slop glows */
@@ -100,7 +112,7 @@ code, pre, kbd, samp, .font-mono {
   transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
-.hallmark-surface:hover {
+.hallmark-surface-hover:hover {
   border-color: var(--text-muted);
 }
 

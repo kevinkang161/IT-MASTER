@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   BookOpen,
   CheckCircle2,
@@ -10,327 +9,361 @@ import {
   Flame,
   Zap,
   ArrowRight,
-  Sparkles,
   GraduationCap,
   Timer,
   Award,
   Clock,
   Target,
-  BarChart3,
-  TrendingUp,
   Play,
-  RotateCcw,
   ShieldCheck,
-  User,
   Star,
-  LogOut,
-  LogIn,
-  UserPlus,
 } from "lucide-react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/lib/auth/auth-context";
 import { calculateLevel } from "@/lib/utils";
-import { getUserProgress } from "@/lib/progress";
+import { getUserProgress, UserProgressData } from "@/lib/progress";
 import { MOCK_LESSONS, MOCK_EXAMS, MOCK_ACHIEVEMENTS } from "@/lib/mock-data";
 
 export default function StudentDashboardPage() {
-  const router = useRouter();
-  const { user, isAdmin, logout } = useAuth();
-
-  const [progressData, setProgressData] = useState(() => getUserProgress(user?.id));
+  const { user, isAdmin } = useAuth();
+  const [progressData, setProgressData] = useState<UserProgressData>(() =>
+    getUserProgress(user?.id)
+  );
 
   useEffect(() => {
     setProgressData(getUserProgress(user?.id));
-  }, [user]);
+  }, [user?.id]);
 
-  const handleLogout = async () => {
-    await logout();
-    router.push("/login");
+  const userXp = user?.xp ?? 0;
+  const userStreak = user?.streak_days ?? 0;
+  const xpStats = calculateLevel(userXp);
+
+  const lessonsCompleted = progressData.completedLessons.length;
+  const totalLessons = MOCK_LESSONS.length;
+  const lessonPercent = totalLessons > 0 ? Math.round((lessonsCompleted / totalLessons) * 100) : 0;
+
+  const exercisesCompleted = progressData.totalQuestionsAnswered;
+  const questionsCorrect = progressData.totalQuestionsCorrect;
+  const accuracyRate =
+    exercisesCompleted > 0 ? Math.round((questionsCorrect / exercisesCompleted) * 100) : null;
+
+  const examCount = progressData.examHistory.length;
+  const avgExamScore =
+    examCount > 0
+      ? Number(
+          (
+            progressData.examHistory.reduce((acc, h) => acc + h.score, 0) / examCount
+          ).toFixed(1)
+        )
+      : null;
+
+  const bestExamScore =
+    examCount > 0
+      ? Math.max(...progressData.examHistory.map((h) => h.score))
+      : 0;
+
+  const nextLesson =
+    MOCK_LESSONS.find((l) => !progressData.completedLessons.includes(l.slug)) || MOCK_LESSONS[0];
+
+  const goals = [
+    {
+      title: "Hoàn thành 1 bài học lý thuyết",
+      reward: "+50 XP",
+      progress: lessonsCompleted >= 1 ? 100 : 0,
+      status: lessonsCompleted >= 1 ? "Đã hoàn thành" : "Chưa bắt đầu",
+      done: lessonsCompleted >= 1,
+    },
+    {
+      title: "Trả lời đúng 10 câu hỏi luyện tập",
+      reward: "+100 XP",
+      progress: Math.min(100, Math.round((questionsCorrect / 10) * 100)),
+      status:
+        questionsCorrect >= 10
+          ? "Đã hoàn thành"
+          : `Đã đúng ${questionsCorrect}/10 câu`,
+      done: questionsCorrect >= 10,
+    },
+    {
+      title: "Hoàn thành 1 đề thi thử THPT",
+      reward: "+150 XP",
+      progress: examCount >= 1 ? 100 : 0,
+      status: examCount >= 1 ? "Đã hoàn thành" : "Chưa bắt đầu",
+      done: examCount >= 1,
+    },
+  ];
+
+  const isAchievementUnlocked = (criterionType: string, threshold: number): boolean => {
+    switch (criterionType) {
+      case "lessons_completed":
+        return lessonsCompleted >= threshold;
+      case "streak_days":
+        return userStreak >= threshold;
+      case "questions_answered":
+        return exercisesCompleted >= threshold;
+      case "perfect_exam":
+        return bestExamScore >= 10;
+      default:
+        return false;
+    }
   };
 
-  const xpStats = calculateLevel(user?.xp || 0);
-  const lessonsCompleted = progressData.completedLessons.length;
-  const totalLessons = 44;
-  const exercisesCompleted = progressData.totalQuestionsAnswered;
-  const accuracyRate = exercisesCompleted > 0
-    ? Math.round((progressData.totalQuestionsCorrect / exercisesCompleted) * 100)
-    : 100;
-  const avgExamScore = progressData.examHistory.length > 0
-    ? Number((progressData.examHistory.reduce((acc, h) => acc + h.score, 0) / progressData.examHistory.length).toFixed(1))
-    : 0;
-
-  const currentLesson = MOCK_LESSONS[0];
-
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8FAFC] dark:bg-[#0B1120] text-slate-900 dark:text-slate-100 font-sans transition-colors">
+    <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--text-primary)] font-sans transition-colors">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8">
-        {/* GUEST BANNER (If not logged in) */}
-        {!user && (
-          <div className="p-5 rounded-3xl bg-indigo-900 border border-indigo-700 text-white shadow-swiss flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-indigo-300">
-                Chế độ Khách trải nghiệm
-              </span>
-              <h2 className="text-base sm:text-lg font-bold text-white">
-                Bạn chưa đăng nhập tài khoản học sinh
-              </h2>
-              <p className="text-xs text-indigo-200 max-w-xl">
-                Đăng ký tài khoản miễn phí để lưu lại toàn bộ tiến độ bài học, kết quả các đề thi thử THPT và tích lũy điểm kinh nghiệm XP của riêng bạn.
-              </p>
-            </div>
-            <div className="flex items-center gap-2.5 shrink-0">
-              <Link href="/login">
-                <Button variant="outline" size="sm" className="bg-indigo-950/60 border-indigo-500/50 text-white hover:bg-indigo-800 text-xs font-semibold">
-                  <LogIn className="w-3.5 h-3.5 mr-1.5" />
-                  <span>Đăng nhập</span>
-                </Button>
-              </Link>
-              <Link href="/register">
-                <Button size="sm" className="bg-white hover:bg-slate-100 text-indigo-950 font-bold text-xs shadow-sm">
-                  <UserPlus className="w-3.5 h-3.5 mr-1.5" />
-                  <span>Đăng ký học sinh mới</span>
-                </Button>
-              </Link>
-            </div>
-          </div>
-        )}
-
-        {/* TOP WELCOME BANNER */}
-        <div className="relative overflow-hidden rounded-3xl bg-slate-900 border border-slate-800 text-white p-6 sm:p-8 shadow-swiss">
-          <div className="absolute right-0 top-0 translate-x-10 -translate-y-10 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-
-          <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div className="flex items-center gap-4 sm:gap-6">
-              <div className="relative">
+      <main className="flex-1 hallmark-container w-full py-8 sm:py-10 space-y-8">
+        {/* TOP SUMMARY HEADER */}
+        <div className="hallmark-surface p-6 sm:p-8 space-y-6">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="flex items-center gap-4 sm:gap-5">
+              <div className="relative shrink-0">
                 <img
-                  src={user?.avatar_url || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&h=200&q=80"}
+                  src={
+                    user?.avatar_url ||
+                    "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&h=200&q=80"
+                  }
                   alt={user?.full_name || "Học sinh"}
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-white/20 shadow-md"
+                  className="w-16 h-16 sm:w-18 sm:h-18 rounded-xl object-cover border border-[var(--border)]"
                 />
-                <span className="absolute -bottom-2 -right-2 px-2 py-0.5 rounded-md bg-amber-400 text-amber-950 text-xs font-black shadow-sm">
+                <span className="absolute -bottom-2 -right-2 px-2 py-0.5 rounded bg-blue-600 text-white text-[11px] font-mono font-bold">
                   Cấp {xpStats.level}
                 </span>
               </div>
+
               <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
-                    {user ? `Chào mừng trở lại, ${user.full_name}!` : "Bảng học tập tổng quan"}
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--text-primary)]">
+                    {user ? `Xin chào, ${user.full_name}` : "Bảng học tập tổng quan"}
                   </h1>
                   {user && (
-                    <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
-                      Lớp {user?.grade_level || 12}
-                    </span>
+                    <Badge variant="primary" className="font-mono">
+                      Lớp {user.grade_level || 12}
+                    </Badge>
                   )}
                   {isAdmin && (
-                    <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-                      Quản trị viên
-                    </span>
+                    <Badge variant="success">Quản trị viên</Badge>
                   )}
                 </div>
-                <p className="text-sm text-slate-300">
+                <p className="text-xs sm:text-sm text-[var(--text-secondary)]">
                   {user
-                    ? `Email: ${user.email} • Tiến độ học tập và rèn luyện kỹ năng Tin học THPT của bạn.`
-                    : "Học tập chuẩn chương trình GDPT 2018 theo bộ sách Kết nối tri thức 10, 11 và 12."}
+                    ? `${user.email} · Theo dõi tiến độ học tập và luyện thi Tin học THPT.`
+                    : "Tổng quan lộ trình Tin học THPT chuẩn SGK Kết nối tri thức."}
                 </p>
               </div>
             </div>
 
-            {/* Quick Actions (Admin CMS & Logout) */}
             <div className="flex flex-wrap items-center gap-2.5">
               {isAdmin && (
                 <Link href="/admin">
-                  <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs">
-                    <ShieldCheck className="w-4 h-4 mr-1.5" />
-                    <span>Mở trang Quản trị CMS</span>
+                  <Button size="sm">
+                    <ShieldCheck className="w-4 h-4" />
+                    <span>Quản trị CMS</span>
                   </Button>
                 </Link>
               )}
-              {user && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleLogout}
-                  className="border-slate-700 text-slate-300 hover:text-rose-400 hover:border-rose-500/50 hover:bg-rose-950/30 text-xs gap-1.5"
-                  title="Đăng xuất khỏi tài khoản"
-                >
-                  <LogOut className="w-3.5 h-3.5" />
-                  <span>Đăng xuất</span>
+              <Link href="/profile">
+                <Button size="sm" variant="outline">
+                  <span>Hồ sơ &amp; Lịch sử</span>
                 </Button>
-              )}
+              </Link>
             </div>
           </div>
 
-          {/* XP & Level progress bar inside hero */}
-          <div className="mt-8 pt-6 border-t border-white/10 grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+          <div className="pt-5 border-t border-[var(--border)] grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
             <div className="sm:col-span-2 space-y-2">
-              <div className="flex justify-between text-xs font-semibold">
-                <span className="text-cyan-300 flex items-center gap-1">
-                  <Zap className="w-3.5 h-3.5 fill-cyan-400" />
-                  Tiến độ thăng Cấp {xpStats.level + 1}
+              <div className="flex justify-between text-xs font-medium">
+                <span className="text-blue-600 dark:text-blue-400 flex items-center gap-1.5 font-semibold">
+                  <Zap className="w-3.5 h-3.5 fill-current" />
+                  <span>Tiến độ thăng Cấp {xpStats.level + 1}</span>
                 </span>
-                <span className="text-slate-300">
+                <span className="text-[var(--text-secondary)] font-mono tabular-nums">
                   {xpStats.currentXp} / {xpStats.nextLevelXp} XP ({xpStats.progress}%)
                 </span>
               </div>
-              <Progress value={xpStats.progress} indicatorColor="bg-gradient-to-r from-blue-400 to-cyan-400" className="h-2.5 bg-slate-800" />
+              <Progress value={xpStats.progress} />
             </div>
 
-            <div className="flex items-center justify-start sm:justify-end gap-3 text-xs">
-              <div className="flex items-center gap-1.5 bg-amber-500/20 border border-amber-500/30 px-3 py-1.5 rounded-xl font-bold text-amber-300">
-                <Flame className="w-4 h-4 fill-amber-400 text-amber-400" />
-                <span>Chuỗi {user?.streak_days || 5} ngày</span>
+            <div className="flex items-center justify-start sm:justify-end gap-2.5 text-xs">
+              <div className="flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 px-3 py-1.5 rounded-lg font-semibold text-amber-800 dark:text-amber-300 font-mono tabular-nums">
+                <Flame className="w-4 h-4 fill-current" />
+                <span>{userStreak} ngày liên tiếp</span>
               </div>
-              <div className="flex items-center gap-1.5 bg-blue-500/20 border border-blue-500/30 px-3 py-1.5 rounded-xl font-bold text-blue-300">
-                <Trophy className="w-4 h-4 fill-blue-400 text-blue-400" />
-                <span>Hạng 3 Tuần</span>
-              </div>
+              <Link
+                href="/leaderboard"
+                className="flex items-center gap-1.5 bg-[var(--bg-subtle)] border border-[var(--border)] px-3 py-1.5 rounded-lg font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+              >
+                <Trophy className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <span>Bảng vàng</span>
+              </Link>
             </div>
           </div>
         </div>
 
-        {/* 4 STAT CARDS */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          <Card className="p-5 bg-white border-slate-200">
-            <div className="flex items-center justify-between text-slate-500 mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider">Bài học hoàn thành</span>
-              <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
-                <BookOpen className="w-4 h-4" />
-              </div>
+        {/* 4 REAL STAT CARDS */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          <Card className="p-5">
+            <div className="flex items-center justify-between text-[var(--text-muted)] mb-2">
+              <span className="text-xs font-medium">Bài học hoàn thành</span>
+              <BookOpen className="w-4 h-4 text-blue-600 dark:text-blue-400" />
             </div>
-            <div className="text-2xl font-black text-slate-900">{lessonsCompleted} / {totalLessons}</div>
-            <div className="text-xs text-slate-500 mt-1">Đạt {Math.round((lessonsCompleted / totalLessons) * 100)}% toàn bộ khóa học</div>
+            <div className="text-2xl font-bold font-mono text-[var(--text-primary)] tabular-nums">
+              {lessonsCompleted} / {totalLessons}
+            </div>
+            <div className="text-xs text-[var(--text-muted)] mt-1">
+              Đạt {lessonPercent}% lộ trình bài giảng
+            </div>
           </Card>
 
-          <Card className="p-5 bg-white border-slate-200">
-            <div className="flex items-center justify-between text-slate-500 mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider">Câu hỏi đã luyện</span>
-              <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
-                <CheckCircle2 className="w-4 h-4" />
-              </div>
+          <Card className="p-5">
+            <div className="flex items-center justify-between text-[var(--text-muted)] mb-2">
+              <span className="text-xs font-medium">Câu hỏi đã luyện</span>
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <div className="text-2xl font-black text-slate-900">{exercisesCompleted} câu</div>
-            <div className="text-xs text-emerald-600 font-medium mt-1">Tỷ lệ đúng: 89.5%</div>
+            <div className="text-2xl font-bold font-mono text-[var(--text-primary)] tabular-nums">
+              {exercisesCompleted} câu
+            </div>
+            <div className="text-xs text-[var(--text-secondary)] mt-1">
+              {accuracyRate !== null ? `Tỷ lệ đúng: ${accuracyRate}%` : "Chưa có dữ liệu luyện tập"}
+            </div>
           </Card>
 
-          <Card className="p-5 bg-white border-slate-200">
-            <div className="flex items-center justify-between text-slate-500 mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider">Điểm thi thử TB</span>
-              <div className="p-2 rounded-xl bg-amber-50 text-amber-600">
-                <GraduationCap className="w-4 h-4" />
-              </div>
+          <Card className="p-5">
+            <div className="flex items-center justify-between text-[var(--text-muted)] mb-2">
+              <span className="text-xs font-medium">Điểm thi thử TB</span>
+              <GraduationCap className="w-4 h-4 text-amber-600 dark:text-amber-400" />
             </div>
-            <div className="text-2xl font-black text-slate-900">{avgExamScore} / 10</div>
-            <div className="text-xs text-slate-500 mt-1">Dựa trên 3 lượt thi gần nhất</div>
+            <div className="text-2xl font-bold font-mono text-[var(--text-primary)] tabular-nums">
+              {avgExamScore !== null ? `${avgExamScore} / 10` : "— / 10"}
+            </div>
+            <div className="text-xs text-[var(--text-muted)] mt-1">
+              {examCount > 0 ? `Dựa trên ${examCount} lượt thi` : "Chưa có lượt thi nào"}
+            </div>
           </Card>
 
-          <Card className="p-5 bg-white border-slate-200">
-            <div className="flex items-center justify-between text-slate-500 mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider">Tổng điểm kinh nghiệm</span>
-              <div className="p-2 rounded-xl bg-violet-50 text-violet-600">
-                <Zap className="w-4 h-4" />
-              </div>
+          <Card className="p-5">
+            <div className="flex items-center justify-between text-[var(--text-muted)] mb-2">
+              <span className="text-xs font-medium">Tổng điểm kinh nghiệm</span>
+              <Zap className="w-4 h-4 text-blue-600 dark:text-blue-400" />
             </div>
-            <div className="text-2xl font-black text-slate-900">{(user?.xp || 1250).toLocaleString()} XP</div>
-            <div className="text-xs text-violet-600 font-medium mt-1">+150 XP trong tuần này</div>
+            <div className="text-2xl font-bold font-mono text-[var(--text-primary)] tabular-nums">
+              {userXp.toLocaleString()} XP
+            </div>
+            <div className="text-xs text-[var(--text-muted)] mt-1">
+              Hiện tại ở Cấp {xpStats.level}
+            </div>
           </Card>
         </div>
 
         {/* MAIN 2-COL LAYOUT */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* LEFT 2 COLS: RECENT LESSON & RECOMMENDED */}
+          {/* LEFT 2 COLS */}
           <div className="lg:col-span-2 space-y-8">
-            {/* CONTINUOUS LEARNING CARD */}
-            <Card className="border-blue-200/80 bg-gradient-to-br from-blue-50/50 to-white shadow-sm overflow-hidden">
-              <CardHeader className="border-b border-slate-100 pb-4">
+            {/* NEXT RECOMMENDED LESSON */}
+            <Card className="overflow-hidden border-blue-200 dark:border-blue-900/70">
+              <CardHeader className="border-b border-[var(--border)] pb-4 bg-[var(--accent-subtle)]/50">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-100 px-2.5 py-0.5 rounded-full">
-                    Đang học dở
+                  <Badge variant="primary">
+                    {lessonsCompleted > 0 ? "Bài học tiếp theo" : "Bắt đầu học"}
+                  </Badge>
+                  <span className="text-xs font-mono text-[var(--text-muted)]">
+                    Khối lớp {nextLesson.grade_id}
                   </span>
-                  <span className="text-xs text-slate-400">Khối lớp 10</span>
                 </div>
-                <CardTitle className="text-lg text-slate-900 mt-2">
-                  {currentLesson.title}
-                </CardTitle>
-                <CardDescription className="text-slate-600">
-                  {currentLesson.introduction}
-                </CardDescription>
+                <CardTitle className="text-lg mt-2">{nextLesson.title}</CardTitle>
+                <CardDescription>{nextLesson.introduction}</CardDescription>
               </CardHeader>
               <CardContent className="pt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-4 text-xs text-slate-500">
+                <div className="flex items-center gap-4 text-xs text-[var(--text-muted)] font-mono tabular-nums">
                   <div className="flex items-center gap-1">
-                    <Clock className="w-4 h-4 text-slate-400" />
-                    <span>~{currentLesson.estimated_minutes} phút</span>
+                    <Clock className="w-4 h-4" />
+                    <span>~{nextLesson.estimated_minutes} phút</span>
                   </div>
-                  <div className="flex items-center gap-1 text-emerald-600 font-semibold">
-                    <Zap className="w-4 h-4 fill-emerald-500" />
-                    <span>+{currentLesson.xp_reward} XP khi hoàn thành</span>
+                  <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
+                    <Zap className="w-4 h-4 fill-current" />
+                    <span>+{nextLesson.xp_reward} XP</span>
                   </div>
                 </div>
-                <Link href={`/learning/${currentLesson.slug}`} className="w-full sm:w-auto">
-                  <Button className="w-full sm:w-auto gap-2">
+                <Link href={`/learning/${nextLesson.slug}`} className="w-full sm:w-auto">
+                  <Button className="w-full sm:w-auto">
                     <Play className="w-4 h-4 fill-current" />
-                    <span>Học tiếp bài này</span>
+                    <span>Vào học ngay</span>
                   </Button>
                 </Link>
               </CardContent>
             </Card>
 
-            {/* RECOMMENDED LESSONS */}
+            {/* LESSON LIST PREVIEW */}
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-amber-500" />
-                  <span>Bài học gợi ý tiếp theo</span>
-                </h3>
-                <Link href="/learning" className="text-xs font-semibold text-blue-600 hover:underline">
-                  Xem tất cả
+                <h2 className="text-base sm:text-lg font-bold text-[var(--text-primary)]">
+                  Bài học gợi ý
+                </h2>
+                <Link
+                  href="/learning"
+                  className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  Xem tất cả ({MOCK_LESSONS.length})
                 </Link>
               </div>
 
               <div className="space-y-3">
-                {MOCK_LESSONS.map((lesson) => (
-                  <Card key={lesson.id} className="p-4 hover:border-blue-300 transition-colors flex items-center justify-between gap-4">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-[10px]">
-                          Lớp {lesson.grade_id}
-                        </Badge>
-                        <Badge variant="primary" className="text-[10px]">
-                          {lesson.difficulty === "co_ban" ? "Cơ bản" : lesson.difficulty === "trung_binh" ? "Trung bình" : "Nâng cao"}
-                        </Badge>
+                {MOCK_LESSONS.slice(0, 4).map((lesson) => {
+                  const done = progressData.completedLessons.includes(lesson.slug);
+                  return (
+                    <Card
+                      key={lesson.id}
+                      className="p-4 hallmark-surface-hover flex items-center justify-between gap-4"
+                    >
+                      <div className="space-y-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-[10px] font-mono">
+                            Lớp {lesson.grade_id}
+                          </Badge>
+                          <Badge variant={done ? "success" : "primary"} className="text-[10px]">
+                            {done
+                              ? "Đã hoàn thành"
+                              : lesson.difficulty === "co_ban"
+                              ? "Cơ bản"
+                              : lesson.difficulty === "trung_binh"
+                              ? "Trung bình"
+                              : "Nâng cao"}
+                          </Badge>
+                        </div>
+                        <h4 className="text-sm font-bold text-[var(--text-primary)] hover:text-blue-600 dark:hover:text-blue-400 transition-colors truncate">
+                          <Link href={`/learning/${lesson.slug}`}>{lesson.title}</Link>
+                        </h4>
+                        <p className="text-xs text-[var(--text-secondary)] line-clamp-1">
+                          {lesson.introduction}
+                        </p>
                       </div>
-                      <h4 className="text-sm font-bold text-slate-900 hover:text-blue-600 transition">
-                        <Link href={`/learning/${lesson.slug}`}>{lesson.title}</Link>
-                      </h4>
-                      <p className="text-xs text-slate-500 line-clamp-1">{lesson.introduction}</p>
-                    </div>
 
-                    <Link href={`/learning/${lesson.slug}`} className="shrink-0">
-                      <Button variant="outline" size="sm" className="gap-1">
-                        <span>Học</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </Button>
-                    </Link>
-                  </Card>
-                ))}
+                      <Link href={`/learning/${lesson.slug}`} className="shrink-0">
+                        <Button variant="outline" size="sm">
+                          <span>{done ? "Xem lại" : "Học"}</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </Button>
+                      </Link>
+                    </Card>
+                  );
+                })}
               </div>
             </div>
 
             {/* MOCK EXAMS CALLOUT */}
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                  <GraduationCap className="w-5 h-5 text-blue-600" />
-                  <span>Đề thi thử THPT sẵn sàng</span>
-                </h3>
-                <Link href="/exams" className="text-xs font-semibold text-blue-600 hover:underline">
+                <h2 className="text-base sm:text-lg font-bold text-[var(--text-primary)]">
+                  Đề thi thử sẵn sàng
+                </h2>
+                <Link
+                  href="/exams"
+                  className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                >
                   Vào phòng thi
                 </Link>
               </div>
@@ -340,26 +373,28 @@ export default function StudentDashboardPage() {
                   <Card key={exam.id} className="p-5 flex flex-col justify-between">
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700">
+                        <Badge variant="primary" className="font-mono">
                           Lớp {exam.grade_id}
-                        </span>
-                        <div className="flex items-center gap-1 text-xs text-slate-400">
+                        </Badge>
+                        <div className="flex items-center gap-1 text-xs font-mono text-[var(--text-muted)] tabular-nums">
                           <Timer className="w-3.5 h-3.5" />
                           <span>{exam.duration_minutes} phút</span>
                         </div>
                       </div>
-                      <h4 className="text-sm font-bold text-slate-900 line-clamp-2 mb-2">
+                      <h4 className="text-sm font-bold text-[var(--text-primary)] line-clamp-2 mb-2">
                         {exam.title}
                       </h4>
-                      <p className="text-xs text-slate-500 line-clamp-2">
+                      <p className="text-xs text-[var(--text-secondary)] line-clamp-2">
                         {exam.description}
                       </p>
                     </div>
 
-                    <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between">
-                      <span className="text-xs font-bold text-emerald-600">+{exam.xp_reward} XP</span>
+                    <div className="pt-4 mt-4 border-t border-[var(--border)] flex items-center justify-between">
+                      <span className="text-xs font-mono font-semibold text-emerald-600 dark:text-emerald-400">
+                        +{exam.xp_reward} XP
+                      </span>
                       <Link href={`/exams/${exam.slug}`}>
-                        <Button size="sm" variant="secondary" className="gap-1 text-xs">
+                        <Button size="sm" variant="secondary" className="text-xs">
                           <span>Làm bài</span>
                           <ArrowRight className="w-3.5 h-3.5" />
                         </Button>
@@ -371,72 +406,90 @@ export default function StudentDashboardPage() {
             </div>
           </div>
 
-          {/* RIGHT 1 COL: DAILY GOALS & ACHIEVEMENTS */}
+          {/* RIGHT 1 COL: GOALS & ACHIEVEMENTS */}
           <div className="space-y-6">
-            {/* DAILY QUESTS */}
-            <Card className="p-5 bg-white border-slate-200">
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-4">
-                <Target className="w-4 h-4 text-blue-600" />
-                <span>Nhiệm vụ hàng ngày (Daily Quests)</span>
+            <Card className="p-5">
+              <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-2 mb-4">
+                <Target className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <span>Mục tiêu học tập</span>
               </h3>
 
-              <div className="space-y-3.5 text-xs">
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1.5">
-                  <div className="flex justify-between font-semibold">
-                    <span className="text-slate-800">Đọc xong 1 bài lý thuyết mới</span>
-                    <span className="text-blue-600 font-bold">+50 XP</span>
+              <div className="space-y-3 text-xs">
+                {goals.map((goal) => (
+                  <div
+                    key={goal.title}
+                    className="p-3 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border)] space-y-1.5"
+                  >
+                    <div className="flex justify-between gap-2 font-semibold">
+                      <span className="text-[var(--text-primary)]">{goal.title}</span>
+                      <span className="text-blue-600 dark:text-blue-400 font-mono shrink-0">
+                        {goal.reward}
+                      </span>
+                    </div>
+                    <Progress value={goal.progress} className="h-1.5" />
+                    <div
+                      className={`text-[11px] font-medium ${
+                        goal.done
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-[var(--text-muted)]"
+                      }`}
+                    >
+                      {goal.status}
+                    </div>
                   </div>
-                  <Progress value={100} className="h-1.5" />
-                  <div className="text-[11px] text-emerald-600 font-medium">✓ Đã hoàn thành</div>
-                </div>
-
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1.5">
-                  <div className="flex justify-between font-semibold">
-                    <span className="text-slate-800">Làm đúng 10 câu trắc nghiệm</span>
-                    <span className="text-blue-600 font-bold">+40 XP</span>
-                  </div>
-                  <Progress value={60} className="h-1.5" />
-                  <div className="text-[11px] text-slate-400">Đã làm: 6/10 câu</div>
-                </div>
-
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1.5">
-                  <div className="flex justify-between font-semibold">
-                    <span className="text-slate-800">Hoàn thành 1 bài thi thử</span>
-                    <span className="text-blue-600 font-bold">+100 XP</span>
-                  </div>
-                  <Progress value={0} className="h-1.5" />
-                  <div className="text-[11px] text-slate-400">Chưa bắt đầu</div>
-                </div>
+                ))}
               </div>
             </Card>
 
-            {/* ACHIEVEMENTS PREVIEW */}
-            <Card className="p-5 bg-white border-slate-200">
+            <Card className="p-5">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-2">
                   <Award className="w-4 h-4 text-amber-500" />
-                  <span>Danh hiệu đã mở khóa</span>
+                  <span>Danh hiệu học tập</span>
                 </h3>
-                <Link href="/leaderboard" className="text-xs text-blue-600 hover:underline">
+                <Link
+                  href="/leaderboard"
+                  className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                >
                   Xem tất cả
                 </Link>
               </div>
 
               <div className="space-y-3">
-                {MOCK_ACHIEVEMENTS.slice(0, 3).map((ach) => (
-                  <div key={ach.id} className="flex items-center gap-3 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-                    <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-                      <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
+                {MOCK_ACHIEVEMENTS.slice(0, 3).map((ach) => {
+                  const unlocked = isAchievementUnlocked(ach.criterion_type, ach.criterion_threshold);
+                  return (
+                    <div
+                      key={ach.id}
+                      className={`flex items-center gap-3 p-2.5 rounded-lg border ${
+                        unlocked
+                          ? "bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/70"
+                          : "bg-[var(--bg-subtle)] border-[var(--border)] opacity-75"
+                      }`}
+                    >
+                      <div
+                        className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
+                          unlocked
+                            ? "bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300"
+                            : "bg-[var(--surface)] text-[var(--text-muted)] border border-[var(--border)]"
+                        }`}
+                      >
+                        <Star className={`w-4 h-4 ${unlocked ? "fill-current" : ""}`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h5 className="text-xs font-bold text-[var(--text-primary)] truncate">
+                          {ach.title}
+                        </h5>
+                        <p className="text-[11px] text-[var(--text-secondary)] truncate">
+                          {ach.description}
+                        </p>
+                      </div>
+                      <span className="text-[10px] font-mono font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded shrink-0">
+                        {unlocked ? "Đã đạt" : `+${ach.xp_bonus} XP`}
+                      </span>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h5 className="text-xs font-bold text-slate-900 truncate">{ach.title}</h5>
-                      <p className="text-[11px] text-slate-500 truncate">{ach.description}</p>
-                    </div>
-                    <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md shrink-0">
-                      +{ach.xp_bonus} XP
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </Card>
           </div>

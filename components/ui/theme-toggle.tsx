@@ -33,7 +33,7 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
 
   if (!mounted) {
     return (
-      <div className={`w-9 h-9 rounded-lg border border-slate-200 dark:border-slate-800 ${className}`} />
+      <div className={`w-9 h-9 rounded-lg border border-[var(--border)] bg-[var(--surface)] ${className}`} />
     );
   }
 
@@ -41,12 +41,10 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
     <button
       type="button"
       onClick={toggleTheme}
-      aria-label="Chuyển chế độ Sáng / Tối chống mỏi mắt"
-      title={isDark ? "Chuyển sang chế độ Sáng dịu (#F8FAFC)" : "Chuyển sang chế độ Tối chống mỏi mắt (#0B1120)"}
-      className={`inline-flex items-center justify-center w-9 h-9 rounded-lg border transition-colors ${
-        isDark
-          ? "border-slate-700 bg-slate-900/80 text-amber-300 hover:bg-slate-800 hover:text-amber-200"
-          : "border-slate-200 bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+      aria-label="Chuyển chế độ Sáng / Tối"
+      title={isDark ? "Chuyển sang chế độ Sáng" : "Chuyển sang chế độ Tối"}
+      className={`inline-flex items-center justify-center w-9 h-9 rounded-lg border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--bg-subtle)] transition-colors cursor-pointer ${
+        isDark ? "text-amber-300 hover:text-amber-200" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
       } ${className}`}
     >
       {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}

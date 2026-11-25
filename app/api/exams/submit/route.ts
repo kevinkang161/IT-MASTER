@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { MOCK_QUESTIONS, MOCK_EXAMS } from "@/lib/mock-data";
+import { MOCK_EXAMS } from "@/lib/mock-data";
+import { getQuestionsForExam, gradeExam } from "@/lib/exam-grading";
 
 const submitSchema = z.object({
   examId: z.string(),
-  singleAnswers: z.record(z.string()).default({}),
-  tfAnswers: z.record(z.record(z.boolean())).default({}),
-  shortAnswers: z.record(z.string()).default({}),
+  singleAnswers: z.record(z.string(), z.string()).default({}),
+  tfAnswers: z.record(z.string(), z.record(z.string(), z.boolean())).default({}),
+  shortAnswers: z.record(z.string(), z.string()).default({}),
   timeSpentSeconds: z.number().nonnegative().default(0),
 });
 
@@ -15,49 +16,32 @@ export async function POST(request: Request) {
     const body = await request.json();
     const validated = submitSchema.parse(body);
 
-    const exam = MOCK_EXAMS.find((e) => e.id === validated.examId || e.slug === validated.examId);
+    const exam = MOCK_EXAMS.find(
+      (e) => e.id === validated.examId || e.slug === validated.examId
+    );
     if (!exam) {
-      return NextResponse.json({ error: "Không tìm thấy đề thi yêu cầu" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Không tìm thấy đề thi yêu cầu" },
+        { status: 404 }
+      );
     }
 
-    const questions = MOCK_QUESTIONS;
-    let correctCount = 0;
-
-    questions.forEach((q) => {
-      if (q.question_type === "single_choice") {
-        const selectedOptId = validated.singleAnswers[q.id];
-        const opt = q.options?.find((o) => o.id === selectedOptId);
-        if (opt?.is_correct) correctCount += 1;
-      } else if (q.question_type === "short_answer") {
-        const input = validated.shortAnswers[q.id]?.trim().toLowerCase();
-        if (q.accepted_answers?.some((ans) => ans.trim().toLowerCase() === input)) {
-          correctCount += 1;
-        }
-      } else if (q.question_type === "true_false") {
-        const answers = validated.tfAnswers[q.id] || {};
-        const isAllRight = q.options?.every((opt) => answers[opt.id] === opt.is_correct);
-        if (isAllRight) correctCount += 1;
-      }
+    const questions = getQuestionsForExam(exam);
+    const result = gradeExam({
+      exam,
+      questions,
+      singleAnswers: validated.singleAnswers,
+      tfAnswers: validated.tfAnswers,
+      shortAnswers: validated.shortAnswers,
+      timeSpentSeconds: validated.timeSpentSeconds,
     });
-
-    const score = Number(((correctCount / questions.length) * exam.max_score).toFixed(2));
-    const accuracy = Math.round((correctCount / questions.length) * 100);
-    const xpEarned = Math.round(exam.xp_reward * (score / exam.max_score));
 
     return NextResponse.json({
       success: true,
-      score,
-      maxScore: exam.max_score,
-      passScore: exam.pass_score,
-      isPassed: score >= exam.pass_score,
-      totalQuestions: questions.length,
-      correctCount,
-      incorrectCount: questions.length - correctCount,
-      accuracy,
-      timeSpentSeconds: validated.timeSpentSeconds,
-      xpEarned,
+      ...result,
     });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Lỗi xử lý nộp bài" }, { status: 400 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Lỗi xử lý nộp bài";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }

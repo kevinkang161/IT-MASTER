@@ -11,17 +11,11 @@ import {
   GraduationCap,
   Plus,
   Trash2,
-  Edit3,
   Eye,
-  CheckCircle2,
-  XCircle,
-  Search,
-  ArrowLeft,
   Activity,
-  Layers,
-  Database,
   Lock,
   LogOut,
+  Info,
 } from "lucide-react";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
@@ -31,47 +25,60 @@ import { Card } from "@/components/ui/card";
 import { useAuth } from "@/lib/auth/auth-context";
 import { MOCK_LESSONS, MOCK_QUESTIONS, MOCK_EXAMS, MOCK_LEADERBOARD } from "@/lib/mock-data";
 
+type AdminTab = "overview" | "lessons" | "questions" | "exams" | "users";
+
+interface AuditEntry {
+  id: string;
+  action: string;
+  detail: string;
+  time: string;
+}
+
 export default function AdminDashboardPage() {
   const router = useRouter();
   const { user, isAdmin, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<"overview" | "lessons" | "questions" | "exams" | "users">("overview");
+  const [activeTab, setActiveTab] = useState<AdminTab>("overview");
 
-  // Local state for admin lessons to allow creating/deleting in demo
   const [lessonsList, setLessonsList] = useState(MOCK_LESSONS);
-  const [questionsList, setQuestionsList] = useState(MOCK_QUESTIONS);
+  const [questionsList] = useState(MOCK_QUESTIONS);
   const [newLessonTitle, setNewLessonTitle] = useState("");
   const [showAddLessonModal, setShowAddLessonModal] = useState(false);
+  const [auditLogs, setAuditLogs] = useState<AuditEntry[]>([
+    {
+      id: "log-1",
+      action: "Dữ liệu mẫu khởi tạo",
+      detail: `${MOCK_LESSONS.length} bài giảng, ${MOCK_QUESTIONS.length} câu hỏi và ${MOCK_EXAMS.length} đề thi`,
+      time: "Phiên hiện tại",
+    },
+  ]);
 
-  // If user is not admin, display role access restriction (403 Forbidden)
   if (!isAdmin) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#F8FAFC] dark:bg-[#0B1120] text-slate-900 dark:text-slate-100 font-sans transition-colors">
+      <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--text-primary)] font-sans transition-colors">
         <Navbar />
         <main className="flex-1 max-w-lg w-full mx-auto px-4 py-20 text-center space-y-6">
-          <div className="w-16 h-16 rounded-2xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 mx-auto flex items-center justify-center shadow-sm">
-            <Lock className="w-8 h-8" />
+          <div className="w-14 h-14 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 mx-auto flex items-center justify-center">
+            <Lock className="w-7 h-7" />
           </div>
           <div className="space-y-2">
-            <span className="font-mono text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider">
-              403 • Quyền truy cập bị từ chối
+            <span className="font-mono text-xs font-semibold text-rose-600 dark:text-rose-400">
+              403 · Quyền truy cập bị từ chối
             </span>
-            <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-              Khu vực Quản trị viên (Admin Only)
+            <h2 className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">
+              Khu vực Quản trị viên
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-              Trang CMS quản trị chỉ dành riêng cho Giáo viên và Quản trị viên hệ thống IT MASTER. Tài khoản của bạn hiện không có thẩm quyền truy cập khu vực này.
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed">
+              Trang quản trị nội dung chỉ dành cho giáo viên và quản trị viên hệ thống IT MASTER. Tài khoản của bạn không có quyền truy cập khu vực này.
             </p>
           </div>
 
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link href="/dashboard" className="w-full sm:w-auto">
-              <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold">
-                Quay lại Bảng học tập
-              </Button>
+              <Button className="w-full">Quay lại bảng học tập</Button>
             </Link>
             <Link href="/" className="w-full sm:w-auto">
-              <Button variant="outline" className="w-full border-slate-200 dark:border-slate-800">
-                Về Trang chủ
+              <Button variant="outline" className="w-full">
+                Về trang chủ
               </Button>
             </Link>
           </div>
@@ -88,52 +95,70 @@ export default function AdminDashboardPage() {
     const newLes = {
       ...MOCK_LESSONS[0],
       id: "les-" + Date.now(),
-      title: newLessonTitle,
+      title: newLessonTitle.trim(),
       slug: "bai-hoc-moi-" + Date.now(),
       is_draft: true,
       created_at: new Date().toISOString(),
     };
 
     setLessonsList([newLes, ...lessonsList]);
+    setAuditLogs((prev) => [
+      {
+        id: "log-" + Date.now(),
+        action: "Thêm bản nháp bài giảng",
+        detail: newLes.title,
+        time: new Date().toLocaleTimeString("vi-VN"),
+      },
+      ...prev,
+    ]);
     setNewLessonTitle("");
     setShowAddLessonModal(false);
   };
 
   const handleDeleteLesson = (id: string) => {
+    const removed = lessonsList.find((l) => l.id === id);
     setLessonsList(lessonsList.filter((l) => l.id !== id));
+    if (removed) {
+      setAuditLogs((prev) => [
+        {
+          id: "log-" + Date.now(),
+          action: "Xóa bài giảng khỏi danh sách phiên",
+          detail: removed.title,
+          time: new Date().toLocaleTimeString("vi-VN"),
+        },
+        ...prev,
+      ]);
+    }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8FAFC] dark:bg-[#0B1120] text-slate-900 dark:text-slate-100 transition-colors">
+    <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--text-primary)] transition-colors">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8">
-        {/* ADMIN TOP BANNER */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 bg-slate-900 text-white rounded-3xl shadow-sm border border-slate-800">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-blue-600/30 border border-blue-400/30 text-cyan-400 flex items-center justify-center">
-              <ShieldCheck className="w-7 h-7" />
+      <main className="flex-1 hallmark-container w-full py-8 sm:py-10 space-y-6">
+        {/* ADMIN HEADER */}
+        <div className="hallmark-surface p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-xl bg-[var(--accent-subtle)] border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white">
-                  Trung tâm Quản trị Nội dung (Admin CMS)
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--text-primary)]">
+                  Trung tâm Quản trị Nội dung
                 </h1>
-                <Badge variant="primary" className="bg-cyan-500/20 text-cyan-300 border-cyan-400/30">
-                  Toàn quyền Admin
-                </Badge>
+                <Badge variant="primary">Quản trị viên</Badge>
               </div>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Quản lý thư viện bài giảng, ngân hàng câu hỏi trắc nghiệm, đề thi thử và phân quyền tài khoản.
+              <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+                Quản lý thư viện bài giảng, ngân hàng câu hỏi, đề thi thử và danh sách học sinh.
               </p>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-2 text-xs bg-slate-800/80 px-3.5 py-2 rounded-xl border border-slate-700/80 text-slate-300">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="font-mono">{user?.email || "thaidoanhoangbh@gmail.com"}</span>
-            </div>
+            <span className="text-xs bg-[var(--bg-subtle)] px-3 py-1.5 rounded-lg border border-[var(--border)] text-[var(--text-secondary)] font-mono">
+              {user?.email}
+            </span>
             <Button
               size="sm"
               variant="outline"
@@ -141,7 +166,7 @@ export default function AdminDashboardPage() {
                 await logout();
                 router.push("/login");
               }}
-              className="border-slate-700 text-slate-300 hover:text-rose-400 hover:bg-rose-950/40 text-xs gap-1.5"
+              className="text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-900/60"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Đăng xuất</span>
@@ -149,25 +174,36 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
+        {/* SAMPLE MODE CLARITY NOTICE */}
+        <div className="p-3.5 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border)] flex items-start gap-2.5 text-xs text-[var(--text-secondary)]">
+          <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+          <span>
+            <strong>Lưu ý dữ liệu mẫu:</strong> Số liệu học sinh và thao tác thêm/xóa bài giảng ở trang này đang phản ánh bộ dữ liệu seed cục bộ trong phiên trình duyệt (chưa ghi xuống Supabase khi chạy ở chế độ Demo).
+          </span>
+        </div>
+
         {/* TABS NAVIGATION */}
-        <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3 overflow-x-auto">
-          {[
-            { id: "overview", label: "Tổng quan thống kê", icon: Activity },
-            { id: "lessons", label: "Quản lý bài giảng", icon: BookOpen },
-            { id: "questions", label: "Ngân hàng câu hỏi", icon: FileQuestion },
-            { id: "exams", label: "Quản lý đề thi thử", icon: GraduationCap },
-            { id: "users", label: "Quản lý học sinh", icon: Users },
-          ].map((tab) => {
+        <div className="flex items-center gap-2 border-b border-[var(--border)] pb-3 overflow-x-auto">
+          {(
+            [
+              { id: "overview", label: "Tổng quan", icon: Activity },
+              { id: "lessons", label: "Bài giảng", icon: BookOpen },
+              { id: "questions", label: "Ngân hàng câu hỏi", icon: FileQuestion },
+              { id: "exams", label: "Đề thi thử", icon: GraduationCap },
+              { id: "users", label: "Học sinh mẫu", icon: Users },
+            ] as const
+          ).map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition whitespace-nowrap ${
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap cursor-pointer border ${
                   isActive
-                    ? "bg-blue-600 text-white shadow-sm"
-                    : "bg-white dark:bg-[#0f172a] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800"
+                    ? "bg-blue-600 text-white border-blue-600 font-semibold"
+                    : "bg-[var(--surface)] text-[var(--text-secondary)] border-[var(--border)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -180,60 +216,71 @@ export default function AdminDashboardPage() {
         {/* TAB 1: OVERVIEW */}
         {activeTab === "overview" && (
           <div className="space-y-6">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-              <Card className="p-5 bg-white dark:bg-[#0f172a] border-slate-200 dark:border-slate-800">
-                <span className="text-xs font-bold text-slate-400 uppercase">Tổng học sinh</span>
-                <div className="text-2xl font-black text-slate-900 dark:text-white mt-1">1,482</div>
-                <div className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mt-1">+12 học sinh hôm nay</div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+              <Card className="p-5">
+                <span className="text-xs font-medium text-[var(--text-muted)]">
+                  Tài khoản học sinh mẫu
+                </span>
+                <div className="text-2xl font-bold font-mono text-[var(--text-primary)] mt-1 tabular-nums">
+                  {MOCK_LEADERBOARD.length}
+                </div>
+                <div className="text-xs text-[var(--text-secondary)] mt-1">
+                  Dữ liệu minh họa
+                </div>
               </Card>
 
-              <Card className="p-5 bg-white dark:bg-[#0f172a] border-slate-200 dark:border-slate-800">
-                <span className="text-xs font-bold text-slate-400 uppercase">Bài giảng đã xuất bản</span>
-                <div className="text-2xl font-black text-slate-900 dark:text-white mt-1">{lessonsList.length} bài</div>
-                <div className="text-xs text-blue-600 dark:text-blue-400 font-semibold mt-1">3 khối lớp 10, 11, 12</div>
+              <Card className="p-5">
+                <span className="text-xs font-medium text-[var(--text-muted)]">
+                  Bài giảng hiện có
+                </span>
+                <div className="text-2xl font-bold font-mono text-[var(--text-primary)] mt-1 tabular-nums">
+                  {lessonsList.length} bài
+                </div>
+                <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                  3 khối lớp 10, 11, 12
+                </div>
               </Card>
 
-              <Card className="p-5 bg-white dark:bg-[#0f172a] border-slate-200 dark:border-slate-800">
-                <span className="text-xs font-bold text-slate-400 uppercase">Ngân hàng câu hỏi</span>
-                <div className="text-2xl font-black text-slate-900 dark:text-white mt-1">{questionsList.length} câu</div>
-                <div className="text-xs text-amber-600 dark:text-amber-400 font-semibold mt-1">Đầy đủ 4 định dạng</div>
+              <Card className="p-5">
+                <span className="text-xs font-medium text-[var(--text-muted)]">
+                  Ngân hàng câu hỏi
+                </span>
+                <div className="text-2xl font-bold font-mono text-[var(--text-primary)] mt-1 tabular-nums">
+                  {questionsList.length} câu
+                </div>
+                <div className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                  Đầy đủ 3 định dạng
+                </div>
               </Card>
 
-              <Card className="p-5 bg-white dark:bg-[#0f172a] border-slate-200 dark:border-slate-800">
-                <span className="text-xs font-bold text-slate-400 uppercase">Đề thi thử THPT</span>
-                <div className="text-2xl font-black text-slate-900 dark:text-white mt-1">{MOCK_EXAMS.length} đề</div>
-                <div className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-1">Chuẩn ma trận Bộ GD&ĐT</div>
+              <Card className="p-5">
+                <span className="text-xs font-medium text-[var(--text-muted)]">
+                  Đề thi thử THPT
+                </span>
+                <div className="text-2xl font-bold font-mono text-[var(--text-primary)] mt-1 tabular-nums">
+                  {MOCK_EXAMS.length} đề
+                </div>
+                <div className="text-xs text-[var(--text-secondary)] mt-1">
+                  Ma trận GDPT 2018
+                </div>
               </Card>
             </div>
 
-            {/* AUDIT LOG RECENT ACTIVITIES */}
-            <Card className="p-6 bg-white dark:bg-[#0f172a] border-slate-200 dark:border-slate-800 space-y-4">
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                Nhật ký kiểm toán hệ thống (Admin Audit Logs)
+            <Card className="p-6 space-y-4">
+              <h3 className="text-base font-bold text-[var(--text-primary)]">
+                Nhật ký thao tác phiên làm việc
               </h3>
 
-              <div className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
-                <div className="py-3 flex items-center justify-between">
-                  <div>
-                    <strong className="text-slate-800 dark:text-slate-200">Admin đã xuất bản bài học:</strong>{" "}
-                    <span className="text-slate-600 dark:text-slate-400">Bài 1: Làm quen với ngôn ngữ Python</span>
+              <div className="divide-y divide-[var(--border)] text-xs">
+                {auditLogs.map((log) => (
+                  <div key={log.id} className="py-3 flex items-center justify-between gap-4">
+                    <div>
+                      <strong className="text-[var(--text-primary)]">{log.action}:</strong>{" "}
+                      <span className="text-[var(--text-secondary)]">{log.detail}</span>
+                    </div>
+                    <span className="text-[var(--text-muted)] font-mono shrink-0">{log.time}</span>
                   </div>
-                  <span className="text-slate-400">10 phút trước</span>
-                </div>
-                <div className="py-3 flex items-center justify-between">
-                  <div>
-                    <strong className="text-slate-800 dark:text-slate-200">Admin đã cập nhật đáp án:</strong>{" "}
-                    <span className="text-slate-600 dark:text-slate-400">Câu hỏi q-04 (Format Đúng/Sai 2025)</span>
-                  </div>
-                  <span className="text-slate-400">25 phút trước</span>
-                </div>
-                <div className="py-3 flex items-center justify-between">
-                  <div>
-                    <strong className="text-slate-800 dark:text-slate-200">Admin đã tạo đề thi thử:</strong>{" "}
-                    <span className="text-slate-600 dark:text-slate-400">Đề thi thử Tốt nghiệp THPT Tin học số 01</span>
-                  </div>
-                  <span className="text-slate-400">1 giờ trước</span>
-                </div>
+                ))}
               </div>
             </Card>
           </div>
@@ -243,60 +290,75 @@ export default function AdminDashboardPage() {
         {activeTab === "lessons" && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+              <h3 className="text-base font-bold text-[var(--text-primary)]">
                 Danh sách bài giảng ({lessonsList.length})
               </h3>
-              <Button size="sm" onClick={() => setShowAddLessonModal(true)} className="gap-1.5">
+              <Button size="sm" onClick={() => setShowAddLessonModal(true)}>
                 <Plus className="w-4 h-4" />
-                <span>Thêm bài giảng mới</span>
+                <span>Thêm bài giảng</span>
               </Button>
             </div>
 
             {showAddLessonModal && (
-              <div className="p-5 rounded-2xl bg-white dark:bg-[#0f172a] border border-blue-200 dark:border-blue-800 shadow-sm space-y-3">
-                <h4 className="text-sm font-bold text-slate-900 dark:text-white">Nhập thông tin bài giảng mới</h4>
-                <form onSubmit={handleAddLesson} className="flex gap-2">
+              <div className="p-5 hallmark-surface border-blue-300 dark:border-blue-800 space-y-3">
+                <h4 className="text-sm font-bold text-[var(--text-primary)]">
+                  Thêm bản nháp bài giảng mới (trong phiên hiện tại)
+                </h4>
+                <form onSubmit={handleAddLesson} className="flex flex-col sm:flex-row gap-2">
                   <input
                     type="text"
                     value={newLessonTitle}
                     onChange={(e) => setNewLessonTitle(e.target.value)}
                     placeholder="Tiêu đề bài giảng (ví dụ: Bài 2: Vòng lặp For trong Python)..."
-                    className="flex-1 p-2.5 text-xs sm:text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 p-2.5 text-xs sm:text-sm bg-[var(--bg)] border border-[var(--border)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-blue-600"
                     required
                   />
-                  <Button type="submit" size="sm">Lưu bài học</Button>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => setShowAddLessonModal(false)}>Hủy</Button>
+                  <div className="flex items-center gap-2">
+                    <Button type="submit" size="sm">Lưu bài học</Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowAddLessonModal(false)}
+                    >
+                      Hủy
+                    </Button>
+                  </div>
                 </form>
               </div>
             )}
 
-            <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+            <div className="hallmark-surface overflow-hidden divide-y divide-[var(--border)]">
               {lessonsList.map((lesson) => (
                 <div key={lesson.id} className="p-4 flex items-center justify-between gap-4">
-                  <div className="space-y-1">
+                  <div className="space-y-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                      <Badge variant="primary" className="font-mono">
                         Lớp {lesson.grade_id}
-                      </span>
-                      <Badge variant={lesson.is_draft ? "warning" : "success"} className="text-[10px]">
-                        {lesson.is_draft ? "DRAFT (Bản nháp)" : "Đã xuất bản"}
+                      </Badge>
+                      <Badge variant={lesson.is_draft ? "warning" : "success"}>
+                        {lesson.is_draft ? "Bản nháp" : "Đã xuất bản"}
                       </Badge>
                     </div>
-                    <h5 className="text-sm font-bold text-slate-900 dark:text-white">{lesson.title}</h5>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">{lesson.introduction}</p>
+                    <h5 className="text-sm font-bold text-[var(--text-primary)] truncate">
+                      {lesson.title}
+                    </h5>
+                    <p className="text-xs text-[var(--text-secondary)] line-clamp-1">
+                      {lesson.introduction}
+                    </p>
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
                     <Link href={`/learning/${lesson.slug}`} target="_blank">
-                      <Button variant="outline" size="sm" className="p-2 dark:border-slate-700" title="Xem trước bài học">
-                        <Eye className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+                      <Button variant="outline" size="sm" title="Xem trước bài học">
+                        <Eye className="w-4 h-4" />
                       </Button>
                     </Link>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => handleDeleteLesson(lesson.id)}
-                      className="p-2 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                      className="text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40"
                       title="Xóa bài học"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -311,35 +373,37 @@ export default function AdminDashboardPage() {
         {/* TAB 3: QUESTIONS MANAGEMENT */}
         {activeTab === "questions" && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                Ngân hàng câu hỏi trắc nghiệm ({questionsList.length})
-              </h3>
-            </div>
+            <h3 className="text-base font-bold text-[var(--text-primary)]">
+              Ngân hàng câu hỏi ({questionsList.length})
+            </h3>
 
             <div className="space-y-3">
               {questionsList.map((q, idx) => (
-                <div key={q.id} className="p-5 rounded-2xl bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 space-y-2">
+                <div key={q.id} className="p-5 hallmark-surface space-y-2.5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-xs">
-                      <span className="font-bold text-slate-800 dark:text-slate-200">Câu {idx + 1}</span>
-                      <span className="px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-semibold border border-blue-200 dark:border-blue-800">
-                        Lớp {q.grade_id}
+                      <span className="font-mono font-semibold text-[var(--text-primary)]">
+                        Câu {idx + 1}
                       </span>
-                      <span className="text-slate-500 dark:text-slate-400">
+                      <Badge variant="primary" className="font-mono">
+                        Lớp {q.grade_id}
+                      </Badge>
+                      <span className="text-[var(--text-muted)]">
                         {q.question_type === "single_choice"
                           ? "Trắc nghiệm 4 lựa chọn"
                           : q.question_type === "true_false"
-                          ? "Đúng / Sai (2025)"
+                          ? "Đúng / Sai 4 ý"
                           : "Trả lời ngắn"}
                       </span>
                     </div>
 
-                    <Badge variant="success" className="text-[10px]">Đã duyệt</Badge>
+                    <Badge variant="success">Đã duyệt</Badge>
                   </div>
 
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white">{q.content}</p>
-                  <div className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">
+                  <p className="text-sm font-semibold text-[var(--text-primary)] whitespace-pre-line">
+                    {q.content}
+                  </p>
+                  <div className="text-xs text-[var(--text-secondary)] bg-[var(--bg-subtle)] p-3 rounded-lg border border-[var(--border)]">
                     <strong>Giải thích:</strong> {q.explanation}
                   </div>
                 </div>
@@ -351,30 +415,33 @@ export default function AdminDashboardPage() {
         {/* TAB 4: EXAMS MANAGEMENT */}
         {activeTab === "exams" && (
           <div className="space-y-4">
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">
+            <h3 className="text-base font-bold text-[var(--text-primary)]">
               Quản lý đề thi thử ({MOCK_EXAMS.length})
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {MOCK_EXAMS.map((exam) => (
-                <Card key={exam.id} className="p-5 bg-white dark:bg-[#0f172a] border-slate-200 dark:border-slate-800 flex flex-col justify-between">
+                <Card key={exam.id} className="p-5 flex flex-col justify-between">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                      <Badge variant="primary" className="font-mono">
                         Lớp {exam.grade_id}
-                      </span>
-                      <Badge variant="success">Hoạt động</Badge>
+                      </Badge>
+                      <Badge variant="success">Đang mở</Badge>
                     </div>
-                    <h4 className="text-sm font-bold text-slate-900 dark:text-white">{exam.title}</h4>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{exam.description}</p>
-                    <div className="text-xs text-slate-600 dark:text-slate-400 pt-2">
-                      Thời lượng: <strong>{exam.duration_minutes} phút</strong> • Tổng câu: <strong>{exam.total_questions} câu</strong>
+                    <h4 className="text-sm font-bold text-[var(--text-primary)]">{exam.title}</h4>
+                    <p className="text-xs text-[var(--text-secondary)]">{exam.description}</p>
+                    <div className="text-xs text-[var(--text-muted)] pt-2 font-mono">
+                      Thời lượng: <strong className="text-[var(--text-primary)]">{exam.duration_minutes} phút</strong> · Tổng câu:{" "}
+                      <strong className="text-[var(--text-primary)]">{exam.total_questions} câu</strong>
                     </div>
                   </div>
 
-                  <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                  <div className="pt-4 mt-4 border-t border-[var(--border)]">
                     <Link href={`/exams/${exam.slug}`}>
-                      <Button variant="outline" size="sm" className="dark:border-slate-700">Xem phòng thi</Button>
+                      <Button variant="outline" size="sm">
+                        Xem phòng thi
+                      </Button>
                     </Link>
                   </div>
                 </Card>
@@ -386,26 +453,28 @@ export default function AdminDashboardPage() {
         {/* TAB 5: USERS MANAGEMENT */}
         {activeTab === "users" && (
           <div className="space-y-4">
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">
-              Danh sách tài khoản học sinh
+            <h3 className="text-base font-bold text-[var(--text-primary)]">
+              Danh sách học sinh mẫu ({MOCK_LEADERBOARD.length})
             </h3>
 
-            <div className="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+            <div className="hallmark-surface overflow-hidden divide-y divide-[var(--border)]">
               {MOCK_LEADERBOARD.map((u) => (
                 <div key={u.id} className="p-4 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <img src={u.avatar} alt={u.name} className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700" />
+                    <img
+                      src={u.avatar}
+                      alt={u.name}
+                      className="w-10 h-10 rounded-full object-cover border border-[var(--border)]"
+                    />
                     <div>
-                      <h5 className="text-sm font-bold text-slate-900 dark:text-white">{u.name}</h5>
-                      <span className="text-xs text-slate-400">{u.grade} • Cấp {u.level} • {u.xp} XP</span>
+                      <h5 className="text-sm font-bold text-[var(--text-primary)]">{u.name}</h5>
+                      <span className="text-xs text-[var(--text-muted)] font-mono">
+                        {u.grade} · Cấp {u.level} · {u.xp.toLocaleString()} XP
+                      </span>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold border border-slate-200 dark:border-slate-700">
-                      Học sinh
-                    </span>
-                  </div>
+                  <Badge variant="default">Học sinh</Badge>
                 </div>
               ))}
             </div>

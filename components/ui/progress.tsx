@@ -9,7 +9,7 @@ interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
 export function Progress({
   value,
   className,
-  indicatorColor = "bg-blue-600",
+  indicatorColor = "bg-blue-600 dark:bg-blue-500",
   ...props
 }: ProgressProps) {
   const percentage = Math.min(Math.max(value, 0), 100);
@@ -17,7 +17,7 @@ export function Progress({
   return (
     <div
       className={cn(
-        "relative h-2.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800",
+        "relative h-2 w-full overflow-hidden rounded-full bg-[var(--bg-subtle)] border border-[var(--border-subtle)]",
         className
       )}
       role="progressbar"
@@ -27,7 +27,7 @@ export function Progress({
       {...props}
     >
       <div
-        className={cn("h-full transition-all duration-500 rounded-full", indicatorColor)}
+        className={cn("h-full transition-all duration-300 rounded-full", indicatorColor)}
         style={{ width: `${percentage}%` }}
       />
     </div>

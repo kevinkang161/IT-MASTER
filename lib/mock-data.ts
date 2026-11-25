@@ -370,6 +370,43 @@ export const MOCK_QUESTIONS: Question[] = [
     updated_at: new Date().toISOString(),
     options: [],
   },
+  // 9. True / False (CSDL Quan hệ Lớp 11)
+  {
+    id: "q-11",
+    grade_id: 11,
+    topic_id: "topic-11-2-1",
+    question_type: "true_false",
+    difficulty: "van_dung",
+    content: "Cho lược đồ CSDL quản lý thư viện gồm hai bảng SACH(MaSach, TenSach, MaLoai) và LOAI_SACH(MaLoai, TenLoai). Xét tính Đúng / Sai của các khẳng định sau:",
+    explanation: "a) Đúng: MaLoai trong bảng SACH là khóa ngoài tham chiếu đến khóa chính MaLoai của bảng LOAI_SACH. b) Sai: Khóa ngoài có thể chứa nhiều giá trị trùng lặp (nhiều sách cùng thuộc một loại). c) Đúng: Ràng buộc toàn vẹn tham chiếu ngăn việc thêm sách có MaLoai chưa tồn tại ở bảng LOAI_SACH. d) Sai: Lệnh xóa một bảng là DROP TABLE, còn DELETE dùng để xóa bản ghi dữ liệu.",
+    is_published: true,
+    is_draft: false,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    options: [
+      { id: "opt-11-a", question_id: "q-11", content: "a) Cột MaLoai trong bảng SACH đóng vai trò là khóa ngoài (Foreign Key) liên kết tới bảng LOAI_SACH.", is_correct: true, order_index: 1 },
+      { id: "opt-11-b", question_id: "q-11", content: "b) Giá trị của khóa ngoài MaLoai trong bảng SACH bắt buộc không được phép trùng lặp giữa các dòng.", is_correct: false, order_index: 2 },
+      { id: "opt-11-c", question_id: "q-11", content: "c) Không thể chèn một cuốn sách có MaLoai không tồn tại trong bảng LOAI_SACH khi ràng buộc tham chiếu được bật.", is_correct: true, order_index: 3 },
+      { id: "opt-11-d", question_id: "q-11", content: "d) Câu lệnh SQL DELETE FROM SACH; dùng để xóa hoàn toàn cấu trúc bảng SACH khỏi cơ sở dữ liệu.", is_correct: false, order_index: 4 },
+    ],
+  },
+  // 10. Short Answer (SQL Lớp 11)
+  {
+    id: "q-12",
+    grade_id: 11,
+    topic_id: "topic-11-2-2",
+    question_type: "short_answer",
+    difficulty: "van_dung_cao",
+    content: "Cho bảng DIEM_TIN có 5 dòng với cột Diem lần lượt là: 7.5, 8.0, 9.0, 6.5, 8.5. Truy vấn sau trả về giá trị số nguyên bằng bao nhiêu?\n\nSELECT COUNT(*) FROM DIEM_TIN WHERE Diem >= 8.0;",
+    code_snippet: "SELECT COUNT(*) FROM DIEM_TIN\nWHERE Diem >= 8.0;",
+    accepted_answers: ["3"],
+    explanation: "Các giá trị thỏa mãn điều kiện Diem >= 8.0 là 8.0, 9.0 và 8.5. Hàm COUNT(*) đếm được tổng cộng 3 dòng thỏa điều kiện.",
+    is_published: true,
+    is_draft: false,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    options: [],
+  },
 ];
 
 export const MOCK_EXAMS: Exam[] = [
@@ -380,7 +417,7 @@ export const MOCK_EXAMS: Exam[] = [
     slug: "de-thi-thu-tot-nghiep-thpt-tin-hoc-so-01",
     description: "Đề thi chuẩn hóa theo định dạng và ma trận đề minh họa mới nhất của Bộ Giáo dục và Đào tạo, bao gồm cả trắc nghiệm nhiều lựa chọn, đúng sai và câu hỏi ngắn.",
     duration_minutes: 45,
-    total_questions: 10,
+    total_questions: 12,
     max_score: 10.0,
     pass_score: 5.0,
     difficulty: "van_dung",

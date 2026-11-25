@@ -1,14 +1,10 @@
 import React from "react";
 import Link from "next/link";
 import {
-  Code2,
   BookOpen,
-  GraduationCap,
   Timer,
   ChevronRight,
   Database,
-  Cpu,
-  User,
   MessageSquare,
   ArrowRight,
   ShieldCheck,
@@ -23,7 +19,7 @@ export default function HomePage() {
     {
       grade: 10,
       title: "Tin học 10",
-      focus: "Nền tảng số và lập trình Python",
+      focus: "Nền tảng số và Python",
       href: "/learning?grade=10",
       topics: "Dữ liệu nhị phân, số bù 2, đồ họa vector và cú pháp lập trình Python cơ bản.",
       action: "Học Tin học 10",
@@ -31,7 +27,7 @@ export default function HomePage() {
     {
       grade: 11,
       title: "Tin học 11",
-      focus: "Cơ sở dữ liệu, SQL và giải thuật",
+      focus: "CSDL, SQL và giải thuật",
       href: "/learning?grade=11",
       topics: "Kiến trúc máy tính, mô hình CSDL quan hệ, truy vấn SQL, tìm kiếm và sắp xếp.",
       action: "Học Tin học 11",
@@ -39,7 +35,7 @@ export default function HomePage() {
     {
       grade: 12,
       title: "Tin học 12",
-      focus: "Trí tuệ nhân tạo, mạng và web",
+      focus: "AI, mạng và thiết kế web",
       href: "/learning?grade=12",
       topics: "Đặc trưng AI, bộ giao thức TCP/IP, thiết bị chuyển mạch và lập trình HTML/CSS.",
       action: "Học Tin học 12",
@@ -52,21 +48,14 @@ export default function HomePage() {
       name: "Trắc nghiệm nhiều lựa chọn",
       count: "24 câu",
       score: "6,0 điểm",
-      desc: "Mỗi câu có 4 phương án, chọn 1 đáp án đúng duy nhất.",
+      desc: "Mỗi câu có 4 phương án, chọn 1 đáp án đúng duy nhất (0,25 điểm/câu).",
     },
     {
       part: "Phần II",
       name: "Trắc nghiệm Đúng hoặc Sai",
       count: "4 câu",
       score: "4,0 điểm",
-      desc: "Mỗi câu gồm 4 ý khẳng định a, b, c, d. Đánh giá tính đúng sai cho từng ý.",
-    },
-    {
-      part: "Phần III",
-      name: "Trả lời ngắn",
-      count: "6 câu",
-      score: "1,5 điểm",
-      desc: "Tự tính toán và điền kết quả của thuật toán hoặc câu lệnh truy vấn dữ liệu.",
+      desc: "Gồm 2 câu chung và 2 câu theo định hướng CS hoặc ICT, mỗi câu 4 ý a, b, c, d.",
     },
   ];
 
@@ -75,70 +64,64 @@ export default function HomePage() {
       <Navbar />
 
       <main className="flex-1">
-        {/* HERO SECTION: Hallmark Rule 12 & 13 - Under 80 words, fits 1280x800 without scrolling */}
-        <section className="border-b border-[var(--border)] pt-16 pb-20 sm:pt-24 sm:pb-28">
+        {/* HERO SECTION */}
+        <section className="border-b border-[var(--border)] pt-14 pb-16 sm:pt-20 sm:pb-24">
           <div className="hallmark-container">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-              {/* Left Column: Headline, one sentence, actions */}
-              <div className="lg:col-span-7 space-y-6">
-                <span className="text-xs font-mono text-[var(--text-muted)] uppercase tracking-normal">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+              <div className="lg:col-span-7 space-y-5">
+                <span className="text-xs font-mono text-[var(--text-muted)] uppercase">
                   Chương trình GDPT 2018 · Định dạng thi 2025
                 </span>
 
-                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[var(--text-primary)] leading-[1.12]">
+                <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-[var(--text-primary)] leading-[1.15]">
                   Ôn thi môn Tin học THPT Quốc gia
                 </h1>
 
                 <p className="text-base sm:text-lg text-[var(--text-secondary)] leading-relaxed max-w-xl">
-                  Ngân hàng câu hỏi trắc nghiệm bốn định dạng và phòng thi thử 45 phút chuẩn ma trận Bộ Giáo dục.
+                  Ngân hàng câu hỏi ba định dạng và phòng thi thử 45 phút bám sát ma trận đề thi của Bộ Giáo dục.
                 </p>
 
-                <div className="pt-2 flex flex-wrap items-center gap-4">
+                <div className="pt-2 flex flex-wrap items-center gap-3">
                   <Link href="/exams">
-                    <Button
-                      size="lg"
-                      className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-lg shadow-sm"
-                    >
+                    <Button size="lg" className="font-medium">
                       <span>Vào thi thử ngay</span>
-                      <ArrowRight className="w-4 h-4 ml-2" />
+                      <ArrowRight className="w-4 h-4" />
                     </Button>
                   </Link>
                   <Link href="/learning">
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      className="border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] px-6 py-3 rounded-lg"
-                    >
+                    <Button variant="outline" size="lg">
                       <span>Thư viện bài học</span>
                     </Button>
                   </Link>
                 </div>
               </div>
 
-              {/* Right Column: Grounded Educational Matrix Card */}
+              {/* Exam Structure Matrix Card (exact 10.0 total points) */}
               <div className="lg:col-span-5">
-                <div className="hallmark-surface p-6 sm:p-7 space-y-5">
+                <div className="hallmark-surface p-6 space-y-4">
                   <div className="flex items-center justify-between pb-3 border-b border-[var(--border)] text-xs text-[var(--text-muted)]">
-                    <span className="font-medium text-[var(--text-primary)]">Cấu trúc đề thi thử</span>
-                    <span className="font-mono tabular-nums">45 phút · 10 điểm</span>
+                    <span className="font-semibold text-[var(--text-primary)]">
+                      Cấu trúc đề thi tốt nghiệp 2025
+                    </span>
+                    <span className="font-mono tabular-nums">45 phút · 10,0 điểm</span>
                   </div>
 
-                  <div className="space-y-3.5">
-                    {examStructure.map((item, idx) => (
+                  <div className="space-y-3">
+                    {examStructure.map((item) => (
                       <div
-                        key={idx}
-                        className="p-3.5 rounded-md bg-[var(--bg-subtle)] border border-[var(--border-subtle)] flex items-start justify-between gap-3"
+                        key={item.part}
+                        className="p-3.5 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)] flex items-start justify-between gap-3"
                       >
                         <div>
                           <div className="text-xs font-semibold text-[var(--text-primary)]">
                             {item.part}: {item.name}
                           </div>
-                          <div className="text-xs text-[var(--text-secondary)] mt-0.5">
+                          <div className="text-xs text-[var(--text-secondary)] mt-0.5 leading-relaxed">
                             {item.desc}
                           </div>
                         </div>
                         <div className="text-right shrink-0">
-                          <span className="text-xs font-mono font-medium text-[var(--text-primary)] block tabular-nums">
+                          <span className="text-xs font-mono font-semibold text-[var(--text-primary)] block tabular-nums">
                             {item.count}
                           </span>
                           <span className="text-[11px] font-mono text-[var(--text-muted)] block tabular-nums">
@@ -149,12 +132,15 @@ export default function HomePage() {
                     ))}
                   </div>
 
-                  <div className="pt-2 text-center">
+                  <div className="p-3 rounded-lg border border-dashed border-[var(--border)] flex items-center justify-between gap-3 text-xs">
+                    <span className="text-[var(--text-secondary)]">
+                      Luyện thêm câu trả lời ngắn (Python &amp; SQL)
+                    </span>
                     <Link
                       href="/practice"
-                      className="text-xs text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1 font-medium"
+                      className="text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1 font-medium shrink-0"
                     >
-                      <span>Luyện tập theo từng phần thi</span>
+                      <span>Luyện tập</span>
                       <ChevronRight className="w-3.5 h-3.5" />
                     </Link>
                   </div>
@@ -164,7 +150,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* SECTION 2: CURRICULUM DIRECTORY (Lớp 10, 11, 12) */}
+        {/* SECTION 2: CURRICULUM DIRECTORY */}
         <section className="py-16 sm:py-20 border-b border-[var(--border)]">
           <div className="hallmark-container">
             <div className="max-w-xl mb-10">
@@ -180,7 +166,7 @@ export default function HomePage() {
               {grades.map((item) => (
                 <div
                   key={item.grade}
-                  className="hallmark-surface p-6 flex flex-col justify-between"
+                  className="hallmark-surface hallmark-surface-hover p-6 flex flex-col justify-between"
                 >
                   <div>
                     <div className="flex items-center justify-between pb-3 mb-4 border-b border-[var(--border)]">
@@ -216,43 +202,43 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* SECTION 3: EXAM FEATURES & INTEGRITY */}
-        <section className="py-16 sm:py-20 border-b border-[var(--border)] bg-[var(--bg-subtle)]">
+        {/* SECTION 3: EXAM FEATURES */}
+        <section className="py-14 sm:py-16 border-b border-[var(--border)] bg-[var(--bg-subtle)]">
           <div className="hallmark-container">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="space-y-2">
-                <div className="w-8 h-8 rounded-md bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center text-[var(--text-primary)] mb-3">
+                <div className="w-8 h-8 rounded-lg bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center mb-3">
                   <Timer className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 </div>
                 <h3 className="text-sm font-bold text-[var(--text-primary)]">
                   Đồng hồ đếm ngược 45 phút
                 </h3>
                 <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                  Mô phỏng áp lực phòng thi thực tế với thông báo mốc thời gian và tự động nộp bài khi hết giờ.
+                  Mô phỏng áp lực phòng thi thực tế với cảnh báo mốc thời gian và tự động nộp bài khi hết giờ.
                 </p>
               </div>
 
               <div className="space-y-2">
-                <div className="w-8 h-8 rounded-md bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center text-[var(--text-primary)] mb-3">
+                <div className="w-8 h-8 rounded-lg bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center mb-3">
                   <Database className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 </div>
                 <h3 className="text-sm font-bold text-[var(--text-primary)]">
-                  Lưu bài tự động theo thời gian thực
+                  Lưu tiến độ học tập cá nhân
                 </h3>
                 <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                  Mọi thao tác chọn đáp án được lưu tức thì vào máy chủ, tránh mất bài khi kết nối mạng gián đoạn.
+                  Theo dõi số bài đã học, lịch sử làm đề và mức độ hoàn thành từng chuyên đề.
                 </p>
               </div>
 
               <div className="space-y-2">
-                <div className="w-8 h-8 rounded-md bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center text-[var(--text-primary)] mb-3">
+                <div className="w-8 h-8 rounded-lg bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center mb-3">
                   <BookOpen className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 </div>
                 <h3 className="text-sm font-bold text-[var(--text-primary)]">
                   Giải thích chi tiết từng câu hỏi
                 </h3>
                 <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                  Ngay sau khi nộp bài, hệ thống chấm điểm trên thang điểm 10 và hiển thị đáp án kèm giải thích cụ thể.
+                  Ngay sau khi nộp bài, hệ thống chấm điểm trên thang 10 và hiển thị lời giải cho từng ý.
                 </p>
               </div>
             </div>
@@ -269,12 +255,9 @@ export default function HomePage() {
             />
             <div className="mt-8 text-center">
               <Link href="/videos">
-                <Button
-                  variant="outline"
-                  className="text-xs font-semibold border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--bg-subtle)] px-6 py-2.5 rounded-lg"
-                >
+                <Button variant="outline" size="md" className="text-xs font-semibold">
                   <span>Xem danh sách tất cả video</span>
-                  <ChevronRight className="w-4 h-4 ml-1" />
+                  <ChevronRight className="w-4 h-4" />
                 </Button>
               </Link>
             </div>
@@ -285,7 +268,7 @@ export default function HomePage() {
         <section id="contact" className="py-16 sm:py-20">
           <div className="hallmark-container">
             <div className="max-w-2xl mx-auto hallmark-surface p-6 sm:p-8">
-              <div className="text-xs text-[var(--text-muted)] font-mono mb-2">
+              <div className="text-xs text-[var(--text-muted)] font-mono mb-1.5">
                 Thông tin liên hệ
               </div>
               <h2 className="text-xl font-bold text-[var(--text-primary)]">
@@ -314,7 +297,7 @@ export default function HomePage() {
                     href="https://zalo.me/0829109222"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors shadow-sm"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors"
                   >
                     <MessageSquare className="w-4 h-4" />
                     <span>Nhắn tin qua Zalo</span>

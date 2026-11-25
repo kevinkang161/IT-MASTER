@@ -9,6 +9,7 @@ export interface ExamRecord {
 
 export interface UserProgressData {
   completedLessons: string[];
+  savedLessons: string[];
   totalQuestionsAnswered: number;
   totalQuestionsCorrect: number;
   examHistory: ExamRecord[];
@@ -16,6 +17,7 @@ export interface UserProgressData {
 
 const DEFAULT_PROGRESS: UserProgressData = {
   completedLessons: [],
+  savedLessons: [],
   totalQuestionsAnswered: 0,
   totalQuestionsCorrect: 0,
   examHistory: [],
@@ -30,7 +32,14 @@ export function getUserProgress(userId?: string): UserProgressData {
   try {
     const raw = localStorage.getItem(getStorageKey(userId));
     if (!raw) return DEFAULT_PROGRESS;
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    return {
+      completedLessons: Array.isArray(parsed?.completedLessons) ? parsed.completedLessons : [],
+      savedLessons: Array.isArray(parsed?.savedLessons) ? parsed.savedLessons : [],
+      totalQuestionsAnswered: Number(parsed?.totalQuestionsAnswered) || 0,
+      totalQuestionsCorrect: Number(parsed?.totalQuestionsCorrect) || 0,
+      examHistory: Array.isArray(parsed?.examHistory) ? parsed.examHistory : [],
+    };
   } catch (_) {
     return DEFAULT_PROGRESS;
   }
@@ -49,6 +58,21 @@ export function recordLessonCompleted(userId: string | undefined, lessonSlug: st
     return updated;
   }
   return current;
+}
+
+export function toggleLessonSaved(userId: string | undefined, lessonSlug: string): UserProgressData {
+  const current = getUserProgress(userId);
+  const exists = current.savedLessons.includes(lessonSlug);
+  const updated: UserProgressData = {
+    ...current,
+    savedLessons: exists
+      ? current.savedLessons.filter((s) => s !== lessonSlug)
+      : [...current.savedLessons, lessonSlug],
+  };
+  if (typeof window !== "undefined") {
+    localStorage.setItem(getStorageKey(userId), JSON.stringify(updated));
+  }
+  return updated;
 }
 
 export function recordQuestionPracticed(
