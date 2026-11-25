@@ -15,50 +15,71 @@ export async function updateSession(request: NextRequest) {
     return response;
   }
 
-  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      get(name: string) {
-        return request.cookies.get(name)?.value;
-      },
-      set(name: string, value: string, options: CookieOptions) {
-        request.cookies.set({
-          name,
-          value,
-          ...options,
-        });
-        response = NextResponse.next({
-          request: {
-            headers: request.headers,
-          },
-        });
-        response.cookies.set({
-          name,
-          value,
-          ...options,
-        });
-      },
-      remove(name: string, options: CookieOptions) {
-        request.cookies.set({
-          name,
-          value: "",
-          ...options,
-        });
-        response = NextResponse.next({
-          request: {
-            headers: request.headers,
-          },
-        });
-        response.cookies.set({
-          name,
-          value: "",
-          ...options,
-        });
-      },
-    },
-  });
+  // Performance & Resilience Check:
+  // Supabase auth cookies typically start with "sb-" or contain "auth-token".
+  // If there are no auth cookies in the request (e.g. anonymous visitor on public pages),
+  // return immediately to avoid unnecessary network latency or timeouts.
+  const allCookies = request.cookies.getAll();
+  const hasAuthCookie = allCookies.some(
+    (c) => c.name.startsWith("sb-") || c.name.includes("auth-token")
+  );
 
-  // Refresh auth token
-  await supabase.auth.getUser();
+  if (!hasAuthCookie) {
+    return response;
+  }
+
+  try {
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        get(name: string) {
+          return request.cookies.get(name)?.value;
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          request.cookies.set({
+            name,
+            value,
+            ...options,
+          });
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          });
+          response.cookies.set({
+            name,
+            value,
+            ...options,
+          });
+        },
+        remove(name: string, options: CookieOptions) {
+          request.cookies.set({
+            name,
+            value: "",
+            ...options,
+          });
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          });
+          response.cookies.set({
+            name,
+            value: "",
+            ...options,
+          });
+        },
+      },
+    });
+
+    // Refresh auth token with a strict 1500ms timeout.
+    // If Supabase is slow, paused, or DNS fails, this ensures the middleware NEVER exceeds
+    // Vercel's Edge execution limits (which causes 504 MIDDLEWARE_INVOCATION_TIMEOUT).
+    const timeoutPromise = new Promise((resolve) => setTimeout(resolve, 1500));
+    await Promise.race([supabase.auth.getUser(), timeoutPromise]);
+  } catch (error) {
+    // Fail silently in edge middleware so page requests are never blocked
+    console.warn("Middleware auth session refresh error:", error);
+  }
 
   return response;
 }
